@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { StreakBadge } from "./streak-badge";
@@ -11,22 +12,32 @@ export function Nav() {
           <Logo />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium">
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           <Link href="/books" className="text-muted hover:text-foreground transition-colors">
             الكتب
+          </Link>
+          <Link href="/quiz" className="text-muted hover:text-foreground transition-colors">
+            كويز
           </Link>
           <Link href="/review" className="text-muted hover:text-foreground transition-colors">
             المراجعة
           </Link>
+          <Link href="/notes" className="text-muted hover:text-foreground transition-colors">
+            ملاحظاتي
+          </Link>
           <Link href="/dashboard" className="text-muted hover:text-foreground transition-colors">
             التقدم
           </Link>
-          <Link href="/about" className="text-muted hover:text-foreground transition-colors">
-            عن المنصة
-          </Link>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <Link
+            href="/search"
+            className="inline-flex items-center justify-center size-9 rounded-full text-muted hover:text-foreground hover:bg-border/40 transition-colors"
+            aria-label="البحث"
+          >
+            <Search className="size-4" />
+          </Link>
           <StreakBadge />
           <ThemeToggle />
           <Link

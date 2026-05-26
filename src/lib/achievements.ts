@@ -16,6 +16,7 @@ import type {
   QuizAttempt,
   FlashcardState,
   ReadingProgress,
+  ChapterNote,
 } from "./db";
 
 export interface AchievementDef {
@@ -32,6 +33,7 @@ export interface AggregatedStats {
   attempts: QuizAttempt[];
   flashcards: FlashcardState[];
   progress: ReadingProgress[];
+  notes: ChapterNote[];
   // derived
   uniqueDays: number;
   currentStreak: number;
@@ -40,6 +42,8 @@ export interface AggregatedStats {
   bestQuizPercent: number;
   perfectQuizzes: number;
   completedChapters: number;
+  noteCount: number;
+  customQuizzes: number;
 }
 
 export const ACHIEVEMENTS: AchievementDef[] = [
@@ -212,6 +216,42 @@ export const ACHIEVEMENTS: AchievementDef[] = [
       return [...byDay.values()].some((n) => n >= 10);
     },
   },
+
+  // — Notes (Session 3ج) —
+  {
+    id: "first-note",
+    name: "أول ملاحظة",
+    description: "دوّنت ملاحظتك الأولى",
+    icon: "✍️",
+    tier: "bronze",
+    check: (s) => s.noteCount >= 1,
+  },
+  {
+    id: "note-keeper",
+    name: "مدوّن نشط",
+    description: "5 ملاحظات مكتوبة",
+    icon: "📓",
+    tier: "silver",
+    check: (s) => s.noteCount >= 5,
+  },
+  {
+    id: "prolific-writer",
+    name: "كاتب غزير",
+    description: "20 ملاحظة - فكرك على الورق",
+    icon: "📚",
+    tier: "gold",
+    check: (s) => s.noteCount >= 20,
+  },
+
+  // — Custom Quiz (Session 3ج) —
+  {
+    id: "first-custom-quiz",
+    name: "مُجرّب",
+    description: "ولّدت أول كويز مخصص",
+    icon: "🎲",
+    tier: "bronze",
+    check: (s) => s.customQuizzes >= 1,
+  },
 ];
 
 export function tierColor(tier: AchievementDef["tier"]) {
@@ -284,6 +324,7 @@ export function aggregate(
   attempts: QuizAttempt[],
   flashcards: FlashcardState[],
   progress: ReadingProgress[],
+  notes: ChapterNote[] = [],
 ): AggregatedStats {
   const { current, longest } = streakStats(sessions);
   return {
@@ -291,6 +332,7 @@ export function aggregate(
     attempts,
     flashcards,
     progress,
+    notes,
     uniqueDays: uniqueDayCount(sessions),
     currentStreak: current,
     longestStreak: longest,
@@ -301,6 +343,8 @@ export function aggregate(
         : Math.max(...attempts.map((a) => a.percent)),
     perfectQuizzes: attempts.filter((a) => a.percent === 100).length,
     completedChapters: progress.filter((p) => p.percent === 100).length,
+    noteCount: notes.length,
+    customQuizzes: attempts.filter((a) => a.chapterNum === 0).length,
   };
 }
 

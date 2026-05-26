@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BookOpen, FileText, Layers, Sparkles } from "lucide-react";
+import { ArrowLeft, BookOpen, FileText, Layers, Network, Sparkles, StickyNote } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { ChapterProgress } from "@/components/chapter-progress";
@@ -129,6 +129,36 @@ export default async function ChapterPage({ params }: PageProps<"/books/hr/[chap
               ابدأ المراجعة
               <ArrowLeft className="size-3.5 group-hover:-translate-x-1 transition-transform" />
             </div>
+          </Link>
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <Link
+            href={`/books/hr/${ch.num}/notes`}
+            className="group flex items-center gap-3 rounded-xl border border-border/60 bg-card px-4 py-3 hover:border-violet-300/60 transition-colors"
+          >
+            <div className="size-9 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center shrink-0">
+              <StickyNote className="size-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-bold text-foreground">الملاحظات</div>
+              <div className="text-[11px] text-muted">دوّن ملاحظاتك الشخصية</div>
+            </div>
+            <ArrowLeft className="size-4 text-muted group-hover:-translate-x-1 group-hover:text-foreground transition-all" />
+          </Link>
+
+          <Link
+            href={`/books/hr/${ch.num}/mindmap`}
+            className="group flex items-center gap-3 rounded-xl border border-border/60 bg-card px-4 py-3 hover:border-emerald-300/60 transition-colors"
+          >
+            <div className="size-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+              <Network className="size-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-bold text-foreground">خريطة ذهنية</div>
+              <div className="text-[11px] text-muted">عرض هيكلي لمحتوى الفصل</div>
+            </div>
+            <ArrowLeft className="size-4 text-muted group-hover:-translate-x-1 group-hover:text-foreground transition-all" />
           </Link>
         </div>
 

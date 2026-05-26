@@ -242,6 +242,41 @@ export function useChapterNotes(bookSlug: string, chapterNum: number) {
   );
 }
 
+export function useAllNotes() {
+  return useLiveQuery(
+    () => getDB().notes.reverse().sortBy("updatedAt"),
+    [],
+  );
+}
+
+export async function upsertChapterNote(
+  bookSlug: string,
+  chapterNum: number,
+  content: string,
+  id?: number,
+): Promise<number> {
+  const db = getDB();
+  const now = Date.now();
+  if (id !== undefined) {
+    const existing = await db.notes.get(id);
+    if (existing) {
+      await db.notes.update(id, { content, updatedAt: now });
+      return id;
+    }
+  }
+  return await db.notes.add({
+    bookSlug,
+    chapterNum,
+    content,
+    createdAt: now,
+    updatedAt: now,
+  });
+}
+
+export async function deleteChapterNote(id: number) {
+  await getDB().notes.delete(id);
+}
+
 // =====================
 // Streak
 // =====================

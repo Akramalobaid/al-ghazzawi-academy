@@ -7,6 +7,7 @@ import {
   useAllQuizAttempts,
   useAllFlashcardStates,
   useAllReadingProgress,
+  useAllNotes,
 } from "@/lib/use-db";
 import {
   aggregate,
@@ -26,15 +27,16 @@ export function AchievementWatcher() {
   const attempts = useAllQuizAttempts();
   const flashcards = useAllFlashcardStates();
   const progress = useAllReadingProgress();
+  const notes = useAllNotes();
 
   const [toasts, setToasts] = useState<AchievementDef[]>([]);
   const evalLock = useRef(false);
 
   useEffect(() => {
-    if (!sessions || !attempts || !flashcards || !progress) return;
+    if (!sessions || !attempts || !flashcards || !progress || !notes) return;
     if (evalLock.current) return;
     evalLock.current = true;
-    const stats = aggregate(sessions, attempts, flashcards, progress);
+    const stats = aggregate(sessions, attempts, flashcards, progress, notes);
     void evaluateAchievements(stats)
       .then((newly) => {
         if (newly.length > 0) {
@@ -44,7 +46,7 @@ export function AchievementWatcher() {
       .finally(() => {
         evalLock.current = false;
       });
-  }, [sessions, attempts, flashcards, progress]);
+  }, [sessions, attempts, flashcards, progress, notes]);
 
   // Auto-dismiss after 6s.
   useEffect(() => {

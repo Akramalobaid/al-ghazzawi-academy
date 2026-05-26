@@ -8,6 +8,7 @@ import {
   useAllFlashcardStates,
   useAllReadingProgress,
   useUnlockedAchievements,
+  useAllNotes,
 } from "@/lib/use-db";
 import {
   ACHIEVEMENTS,
@@ -22,9 +23,10 @@ export function AchievementsGallery() {
   const flashcards = useAllFlashcardStates();
   const progress = useAllReadingProgress();
   const unlocked = useUnlockedAchievements();
+  const notes = useAllNotes();
 
   const loading =
-    !sessions || !attempts || !flashcards || !progress || !unlocked;
+    !sessions || !attempts || !flashcards || !progress || !unlocked || !notes;
 
   const unlockedMap = useMemo(() => {
     const m = new Map<string, number>();
@@ -34,8 +36,8 @@ export function AchievementsGallery() {
 
   const stats = useMemo(() => {
     if (loading) return null;
-    return aggregate(sessions, attempts, flashcards, progress);
-  }, [loading, sessions, attempts, flashcards, progress]);
+    return aggregate(sessions, attempts, flashcards, progress, notes);
+  }, [loading, sessions, attempts, flashcards, progress, notes]);
 
   if (loading) {
     return (
