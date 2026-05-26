@@ -136,6 +136,8 @@ export interface Preferences {
   onboardingCompleted?: boolean;
   /** active study plan (single plan supported in v1) */
   studyPlan?: StudyPlan;
+  /** name printed on certificates */
+  studentName?: string;
 }
 
 // =====================

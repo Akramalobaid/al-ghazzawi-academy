@@ -17,7 +17,8 @@ export function Footer() {
             <h4 className="text-sm font-bold text-foreground">المنصة</h4>
             <ul className="space-y-2 text-sm text-muted">
               <li><a href="/books" className="hover:text-foreground transition-colors">الكتب</a></li>
-              <li><a href="/#features" className="hover:text-foreground transition-colors">الميزات</a></li>
+              <li><a href="/assistant" className="hover:text-foreground transition-colors">المساعد الذكي</a></li>
+              <li><a href="/certificate" className="hover:text-foreground transition-colors">الشهادة</a></li>
               <li><a href="/about" className="hover:text-foreground transition-colors">عن المنصة</a></li>
             </ul>
           </div>

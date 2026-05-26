@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Bot, Search } from "lucide-react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { StreakBadge } from "./streak-badge";
@@ -31,6 +31,13 @@ export function Nav() {
         </nav>
 
         <div className="flex items-center gap-1.5">
+          <Link
+            href="/assistant"
+            className="inline-flex items-center justify-center size-9 rounded-full text-muted hover:text-cyan-700 hover:bg-cyan-50 transition-colors"
+            aria-label="المساعد الذكي"
+          >
+            <Bot className="size-4" />
+          </Link>
           <Link
             href="/search"
             className="inline-flex items-center justify-center size-9 rounded-full text-muted hover:text-foreground hover:bg-border/40 transition-colors"

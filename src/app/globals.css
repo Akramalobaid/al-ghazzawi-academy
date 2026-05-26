@@ -261,3 +261,48 @@ h1, h2, h3, h4 {
   font-weight: 700;
   color: var(--prose-th-text);
 }
+
+/* ──────────────────────────────────────────────
+   Print styles
+   Apply across summary/notes/certificate pages.
+   ────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .summary-prose, .summary-prose * {
+    color: #000 !important;
+    background: transparent !important;
+  }
+  .summary-prose .key-point {
+    border: 1px solid #999;
+    background: #f6f6f6 !important;
+    color: #000 !important;
+  }
+  /* Hide all interactive chrome */
+  header, footer, nav,
+  button:not(.print-keep),
+  .print-hidden {
+    display: none !important;
+  }
+  /* Avoid awkward page breaks */
+  h1, h2, h3, h4 {
+    break-after: avoid;
+  }
+  p, li, blockquote {
+    break-inside: avoid;
+  }
+  /* Certificate sizing */
+  .certificate-paper {
+    box-shadow: none !important;
+    border: none !important;
+    width: 100%;
+    max-width: none;
+    min-height: 95vh;
+  }
+}

@@ -7,6 +7,7 @@ import {
   ArrowRight,
   BrainCircuit,
   CheckCheck,
+  Download,
   RotateCw,
   Shuffle,
   Sparkles,
@@ -17,6 +18,7 @@ import {
   setFlashcardStatus,
   useChapterFlashcardStates,
 } from "@/lib/use-db";
+import { downloadAnkiTsv } from "@/lib/anki-export";
 
 interface FlashcardsDeckProps {
   cards: Flashcard[];
@@ -151,6 +153,20 @@ export function FlashcardsDeck({
           >
             <Shuffle className="size-3.5" />
             خلط
+          </button>
+          <button
+            onClick={() =>
+              downloadAnkiTsv({
+                fileBase: `${bookSlug}-chapter-${chapterNum}`,
+                tag: `${bookSlug.toUpperCase()}::Chapter${chapterNum}`,
+                cards,
+              })
+            }
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-card px-3 py-1.5 text-xs font-semibold hover:border-cyan-300 transition-colors"
+            aria-label="تصدير لـ Anki"
+          >
+            <Download className="size-3.5" />
+            Anki
           </button>
         </div>
       </div>

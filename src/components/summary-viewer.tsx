@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Construction, Zap, Layers, BookOpen } from "lucide-react";
+import { Construction, Zap, Layers, BookOpen, Printer } from "lucide-react";
+import { SpeechController } from "./speech-controller";
 import type { SummaryLevel } from "@/content/hr/types";
 import { logStudySession, upsertChapterProgress } from "@/lib/db";
 import { setPreference, usePreferences } from "@/lib/use-db";
@@ -61,7 +62,20 @@ export function SummaryViewer({
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-2 rounded-2xl bg-navy-50/60 p-1.5 mb-6">
+      {/* Action toolbar — hidden in print */}
+      <div className="flex items-center justify-end gap-2 mb-3 print:hidden">
+        <SpeechController html={content ?? ""} />
+        <button
+          onClick={() => window.print()}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-card px-3 py-1.5 text-xs font-semibold hover:border-foreground/40 transition-colors"
+          aria-label="طباعة"
+        >
+          <Printer className="size-3.5" />
+          طباعة
+        </button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 rounded-2xl bg-navy-50/60 p-1.5 mb-6 print:hidden">
         {LEVELS.map(({ key, label, sub, icon: Icon }) => {
           const isActive = level === key;
           const hasContent = !!summary[key];
