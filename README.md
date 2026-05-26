@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# أكاديمية الغزاوي | Al-Ghazzawi Academy
 
-## Getting Started
+> منصة تعليمية متكاملة لطلاب الماجستير في إدارة الأعمال — كتب، ملخصات، أسئلة، وفلاش كاردز.
 
-First, run the development server:
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
+
+## ✨ الميزات
+
+- 📖 **كتب MBA كاملة** — خمسة كتب أصلية باللغة العربية
+- 📝 **ملخصات بثلاثة مستويات** — مكثف، عادي، مفصّل
+- ❓ **بنك أسئلة** — أكثر من 30 سؤالاً متدرّجاً لكل فصل
+- 🎴 **فلاش كاردز ذكية** — مصطلحات عربية وإنجليزية
+- 📊 **تتبع التقدم** — لوحة معلومات تفاعلية
+- 🌐 **PWA** — يعمل بدون إنترنت بعد التثبيت
+
+## 🛠️ التقنيات
+
+- **الإطار:** Next.js 16 (App Router) + React 19
+- **اللغة:** TypeScript 5
+- **التصميم:** Tailwind CSS 4
+- **الأيقونات:** Lucide React
+- **الأنيميشن:** Motion (Framer Motion)
+- **الاستضافة:** Vercel
+
+## 🚀 التشغيل المحلي
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ثم افتح [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📦 الإنتاج
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## 📂 بنية المشروع
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/              # صفحات App Router
+│   ├── about/        # عن المنصة
+│   ├── books/        # المكتبة
+│   │   └── hr/       # كتاب الموارد البشرية
+│   ├── layout.tsx    # التخطيط الرئيسي (RTL + الخطوط)
+│   ├── manifest.ts   # PWA manifest
+│   └── page.tsx      # الصفحة الرئيسية
+├── components/       # المكونات المشتركة
+└── lib/              # الأدوات المساعدة
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📜 الترخيص
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+محتوى الكتب مفتوح الوصول وموزّع مجاناً للأغراض التعليمية.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+صُمم وطُوّر بعناية لطلاب MBA العرب.
