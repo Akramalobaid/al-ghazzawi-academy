@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Construction, Zap, Layers, BookOpen } from "lucide-react";
 import type { SummaryLevel } from "@/content/hr/types";
+import { logStudySession, upsertChapterProgress } from "@/lib/db";
+import { setPreference, usePreferences } from "@/lib/use-db";
 
 interface SummaryViewerProps {
   summary: {
@@ -10,6 +12,10 @@ interface SummaryViewerProps {
     standard?: string;
     detailed: string;
   };
+  /** chapter number — used to mark progress */
+  chapterNum?: number;
+  /** book slug — defaults to "hr" */
+  bookSlug?: string;
 }
 
 const LEVELS: Array<{
@@ -23,8 +29,32 @@ const LEVELS: Array<{
   { key: "detailed", label: "مفصّل", sub: "شرح كامل", icon: BookOpen },
 ];
 
-export function SummaryViewer({ summary }: SummaryViewerProps) {
+export function SummaryViewer({
+  summary,
+  chapterNum,
+  bookSlug = "hr",
+}: SummaryViewerProps) {
+  const prefs = usePreferences();
   const [level, setLevel] = useState<SummaryLevel>("detailed");
+
+  // Restore preferred level once.
+  useEffect(() => {
+    if (prefs?.summaryLevel && summary[prefs.summaryLevel]) {
+      setLevel(prefs.summaryLevel);
+    }
+  }, [prefs?.summaryLevel, summary]);
+
+  // Mark summary as read + log study session (once per mount per chapter).
+  useEffect(() => {
+    if (chapterNum == null) return;
+    void upsertChapterProgress(bookSlug, chapterNum, { summaryRead: true });
+    void logStudySession("summary", bookSlug, chapterNum);
+  }, [bookSlug, chapterNum]);
+
+  function changeLevel(next: SummaryLevel) {
+    setLevel(next);
+    void setPreference("summaryLevel", next);
+  }
 
   const content = summary[level];
   const isAvailable = !!content;
@@ -38,7 +68,7 @@ export function SummaryViewer({ summary }: SummaryViewerProps) {
           return (
             <button
               key={key}
-              onClick={() => setLevel(key)}
+              onClick={() => changeLevel(key)}
               className={`relative rounded-xl px-3 py-2.5 text-center transition-all ${
                 isActive
                   ? "bg-card shadow-soft text-foreground"
@@ -81,7 +111,7 @@ export function SummaryViewer({ summary }: SummaryViewerProps) {
             المفصّل.
           </p>
           <button
-            onClick={() => setLevel("detailed")}
+            onClick={() => changeLevel("detailed")}
             className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-amber-600 text-white px-4 py-2 text-sm font-bold hover:bg-amber-700 transition-colors"
           >
             <BookOpen className="size-4" />

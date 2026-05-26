@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Tajawal, Inter } from "next/font/google";
 import { SITE } from "@/lib/site";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const tajawal = Tajawal({
@@ -68,9 +69,10 @@ export default function RootLayout({
       lang="ar"
       dir="rtl"
       className={`${tajawal.variable} ${inter.variable} antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-screen bg-background text-foreground">
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

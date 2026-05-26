@@ -69,7 +69,7 @@ export default async function SummaryPage({
             </div>
           </div>
 
-          <SummaryViewer summary={ch.summary} />
+          <SummaryViewer summary={ch.summary} chapterNum={ch.num} bookSlug="hr" />
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">

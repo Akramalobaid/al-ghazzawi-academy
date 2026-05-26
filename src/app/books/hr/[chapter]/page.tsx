@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, BookOpen, FileText, Layers, Sparkles } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
+import { ChapterProgress } from "@/components/chapter-progress";
 import { hrBook, getChapterByNum } from "@/content/hr";
 
 export function generateStaticParams() {
@@ -65,6 +66,16 @@ export default async function ChapterPage({ params }: PageProps<"/books/hr/[chap
               <span className="size-1 rounded-full bg-white/40" />
               <span>{ch.page_count} صفحة</span>
             </div>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <div className="rounded-xl border border-border/60 bg-card px-4 py-3 shadow-soft">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-bold text-foreground">تقدم هذا الفصل</span>
+              <span className="text-[10px] text-muted">ملخص · كويز · فلاش كاردز</span>
+            </div>
+            <ChapterProgress bookSlug="hr" chapterNum={ch.num} />
           </div>
         </div>
 

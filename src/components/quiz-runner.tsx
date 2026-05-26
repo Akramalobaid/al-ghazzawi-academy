@@ -1,25 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
+  History,
   RotateCcw,
   XCircle,
   Trophy,
 } from "lucide-react";
 import type { QuizItem } from "@/content/hr/types";
+import { getDB, logStudySession, upsertChapterProgress } from "@/lib/db";
+import { useChapterQuizAttempts } from "@/lib/use-db";
 
 interface QuizRunnerProps {
   questions: QuizItem[];
   chapterNum: number;
   hasNext: boolean;
   hasPrev: boolean;
+  /** book slug, defaults to "hr" */
+  bookSlug?: string;
 }
 
-export function QuizRunner({ questions, chapterNum, hasNext, hasPrev }: QuizRunnerProps) {
+export function QuizRunner({
+  questions,
+  chapterNum,
+  hasNext,
+  bookSlug = "hr",
+}: QuizRunnerProps) {
   const total = questions.length;
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -27,6 +37,10 @@ export function QuizRunner({ questions, chapterNum, hasNext, hasPrev }: QuizRunn
     Array(total).fill(null)
   );
   const [finished, setFinished] = useState(false);
+  const startedAtRef = useRef<number>(Date.now());
+  const savedAttemptRef = useRef(false);
+
+  const previousAttempts = useChapterQuizAttempts(bookSlug, chapterNum);
 
   const current = questions[index];
   const isAnswered = selected !== null;
@@ -70,7 +84,39 @@ export function QuizRunner({ questions, chapterNum, hasNext, hasPrev }: QuizRunn
     setSelected(null);
     setAnswers(Array(total).fill(null));
     setFinished(false);
+    startedAtRef.current = Date.now();
+    savedAttemptRef.current = false;
   }
+
+  // Persist the attempt to Dexie when the quiz finishes (once per run).
+  useEffect(() => {
+    if (!finished || savedAttemptRef.current) return;
+    savedAttemptRef.current = true;
+    const percent = Math.round((score / total) * 100);
+    const durationSec = Math.round(
+      (Date.now() - startedAtRef.current) / 1000,
+    );
+    void (async () => {
+      try {
+        await getDB().quizAttempts.add({
+          bookSlug,
+          chapterNum,
+          date: Date.now(),
+          score,
+          total,
+          percent,
+          answers,
+          durationSec,
+        });
+        await upsertChapterProgress(bookSlug, chapterNum, {
+          quizCompleted: true,
+        });
+        await logStudySession("quiz", bookSlug, chapterNum, durationSec);
+      } catch (err) {
+        console.warn("[quiz] failed to save attempt", err);
+      }
+    })();
+  }, [finished, answers, score, total, bookSlug, chapterNum]);
 
   if (finished) {
     const percent = Math.round((score / total) * 100);
@@ -128,6 +174,37 @@ export function QuizRunner({ questions, chapterNum, hasNext, hasPrev }: QuizRunn
             </Link>
           )}
         </div>
+
+        {previousAttempts && previousAttempts.length > 1 && (
+          <div className="mt-8 text-start">
+            <div className="flex items-center gap-2 text-sm font-bold text-muted mb-3">
+              <History className="size-4" />
+              محاولاتك السابقة ({previousAttempts.length})
+            </div>
+            <div className="grid gap-2">
+              {previousAttempts.slice(0, 5).map((a) => (
+                <div
+                  key={a.id}
+                  className="flex items-center justify-between rounded-lg border border-border/60 bg-background/40 px-3 py-2 text-sm"
+                >
+                  <span className="text-muted">
+                    {new Date(a.date).toLocaleDateString("ar-EG", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                  <span className="font-bold text-foreground">
+                    {a.score}/{a.total}{" "}
+                    <span className="text-xs text-muted">({a.percent}%)</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <details className="mt-8 text-start">
           <summary className="cursor-pointer text-sm font-semibold text-muted hover:text-foreground transition-colors text-center">

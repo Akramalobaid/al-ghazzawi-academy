@@ -2,6 +2,10 @@ import Link from "next/link";
 import { ArrowLeft, BookOpen, FileText, Layers, Sparkles } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
+import {
+  BookProgressSummary,
+  ChapterProgress,
+} from "@/components/chapter-progress";
 import { hrBook } from "@/content/hr";
 
 export const metadata = {
@@ -57,10 +61,34 @@ export default function HRBookPage() {
                 <div className="text-xs text-white/70 font-medium">بطاقة</div>
               </div>
             </div>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link
+                href="/books/hr/read"
+                className="inline-flex items-center gap-2 rounded-xl bg-white text-royal-700 px-5 py-3 text-sm font-bold shadow-card hover:bg-cyan-50 transition-colors"
+              >
+                <BookOpen className="size-4" />
+                اقرأ الكتاب الأصلي
+              </Link>
+              <Link
+                href="#chapters"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm text-white px-5 py-3 text-sm font-bold hover:bg-white/20 transition-colors"
+              >
+                <Layers className="size-4" />
+                تصفّح الفصول
+              </Link>
+            </div>
           </div>
         </div>
 
-        <div className="mt-12 flex items-center justify-between mb-6">
+        <div className="mt-8">
+          <BookProgressSummary
+            bookSlug="hr"
+            totalChapters={hrBook.chapters.length}
+          />
+        </div>
+
+        <div id="chapters" className="mt-10 flex items-center justify-between mb-6 scroll-mt-20">
           <div>
             <h2 className="text-2xl font-black text-foreground">الفصول</h2>
             <p className="mt-1 text-sm text-muted">اختر فصلاً لبدء الدراسة</p>
@@ -103,6 +131,7 @@ export default function HRBookPage() {
                       {ch.flashcards.length} كارد
                     </span>
                   </div>
+                  <ChapterProgress bookSlug="hr" chapterNum={ch.num} />
                 </div>
                 <ArrowLeft className="size-4 text-muted group-hover:text-royal-700 group-hover:-translate-x-1 transition-all shrink-0 mt-1" />
               </div>
