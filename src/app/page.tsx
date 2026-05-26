@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
+import { TodayBanner } from "@/components/today-banner";
 import { BOOKS, SITE } from "@/lib/site";
 
 export default function HomePage() {
@@ -18,6 +19,7 @@ export default function HomePage() {
     <>
       <Nav />
       <main>
+        <TodayBanner />
         {/* HERO */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 gradient-mesh opacity-60" />

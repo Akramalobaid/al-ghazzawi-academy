@@ -15,6 +15,7 @@ import {
   type FlashcardStatus,
   type Preferences,
 } from "./db";
+import { sm2, type ReviewQuality, reviewQualityFromBinary } from "./sm2";
 
 // =====================
 // Reading progress
@@ -94,33 +95,71 @@ export function useChapterFlashcardStates(
 }
 
 /**
- * Mark a single flashcard's status. Increments review count and updates `lastReviewed`.
- * SM-2 scheduling will be added in Session 3ب — this version just stores the status.
+ * Mark a single flashcard via the legacy binary K/R API.
+ * Internally delegates to SM-2 scheduling (good vs again).
  */
 export async function setFlashcardStatus(
   bookSlug: string,
   chapterNum: number,
   cardIndex: number,
-  status: FlashcardStatus,
+  status: "known" | "needsReview",
 ) {
+  return reviewFlashcard(
+    bookSlug,
+    chapterNum,
+    cardIndex,
+    reviewQualityFromBinary(status),
+  );
+}
+
+/**
+ * Full SM-2 review: take a quality (again/hard/good/easy), update easeFactor,
+ * intervalDays, nextReview, status, reviewCount, lastReviewed.
+ */
+export async function reviewFlashcard(
+  bookSlug: string,
+  chapterNum: number,
+  cardIndex: number,
+  quality: ReviewQuality,
+): Promise<FlashcardStatus> {
   try {
     const db = getDB();
     const id = flashcardStateId(bookSlug, chapterNum, cardIndex);
     const existing = await db.flashcardStates.get(id);
+    const sched = sm2(quality, {
+      easeFactor: existing?.easeFactor,
+      intervalDays: existing?.intervalDays,
+      reviewCount: existing?.reviewCount,
+    });
     await db.flashcardStates.put({
       id,
       bookSlug,
       chapterNum,
       cardIndex,
-      status,
+      status: sched.status,
       reviewCount: (existing?.reviewCount ?? 0) + 1,
       lastReviewed: Date.now(),
-      easeFactor: existing?.easeFactor ?? 2.5,
-      intervalDays: existing?.intervalDays ?? 0,
+      nextReview: sched.nextReview,
+      easeFactor: sched.easeFactor,
+      intervalDays: sched.intervalDays,
     });
+    return sched.status;
   } catch (err) {
-    console.warn("[db] setFlashcardStatus failed", err);
+    console.warn("[db] reviewFlashcard failed", err);
+    return "new";
   }
+}
+
+/** All flashcard states (across all books) that are due now. */
+export function useDueFlashcards(now = Date.now()) {
+  return useLiveQuery(async () => {
+    const all = await getDB().flashcardStates.toArray();
+    return all.filter(
+      (s) =>
+        // due if no nextReview yet (new/legacy) or scheduled time has passed
+        s.nextReview === undefined || s.nextReview <= now,
+    );
+  }, [now]);
 }
 
 // =====================
@@ -251,6 +290,30 @@ export function useStreak() {
 
     return { current, longest, todayActive };
   }, []);
+}
+
+// =====================
+// Aggregate hooks (used by Dashboard / Achievements)
+// =====================
+
+export function useAllStudySessions() {
+  return useLiveQuery(() => getDB().studySessions.toArray(), []);
+}
+
+export function useAllQuizAttempts() {
+  return useLiveQuery(() => getDB().quizAttempts.toArray(), []);
+}
+
+export function useAllFlashcardStates() {
+  return useLiveQuery(() => getDB().flashcardStates.toArray(), []);
+}
+
+export function useAllReadingProgress() {
+  return useLiveQuery(() => getDB().readingProgress.toArray(), []);
+}
+
+export function useUnlockedAchievements() {
+  return useLiveQuery(() => getDB().achievements.toArray(), []);
 }
 
 // =====================

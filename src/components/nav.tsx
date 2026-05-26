@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
+import { StreakBadge } from "./streak-badge";
 
 export function Nav() {
   return (
@@ -10,12 +11,15 @@ export function Nav() {
           <Logo />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+        <nav className="hidden md:flex items-center gap-7 text-sm font-medium">
           <Link href="/books" className="text-muted hover:text-foreground transition-colors">
             الكتب
           </Link>
-          <Link href="/#features" className="text-muted hover:text-foreground transition-colors">
-            الميزات
+          <Link href="/review" className="text-muted hover:text-foreground transition-colors">
+            المراجعة
+          </Link>
+          <Link href="/dashboard" className="text-muted hover:text-foreground transition-colors">
+            التقدم
           </Link>
           <Link href="/about" className="text-muted hover:text-foreground transition-colors">
             عن المنصة
@@ -23,6 +27,7 @@ export function Nav() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <StreakBadge />
           <ThemeToggle />
           <Link
             href="/books"

@@ -111,6 +111,20 @@ export interface Achievement {
   metadata?: Record<string, unknown>;
 }
 
+export interface StudyPlanDay {
+  dayIndex: number;
+  dayKey: string;
+  chapterNum: number;
+  activities: ("summary" | "quiz" | "flashcards")[];
+}
+
+export interface StudyPlan {
+  durationDays: 30 | 60 | 90;
+  startDate: number;
+  bookSlug: string;
+  schedule: StudyPlanDay[];
+}
+
 export interface Preferences {
   /** primary key — singleton: always "user" */
   id: "user";
@@ -120,6 +134,8 @@ export interface Preferences {
   summaryLevel?: "concise" | "standard" | "detailed";
   /** last seen onboarding step */
   onboardingCompleted?: boolean;
+  /** active study plan (single plan supported in v1) */
+  studyPlan?: StudyPlan;
 }
 
 // =====================

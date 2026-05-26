@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Tajawal, Inter } from "next/font/google";
 import { SITE } from "@/lib/site";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AchievementWatcher } from "@/components/achievement-watcher";
 import "./globals.css";
 
 const tajawal = Tajawal({
@@ -72,7 +73,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-background text-foreground">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <AchievementWatcher />
+        </ThemeProvider>
       </body>
     </html>
   );
