@@ -3,10 +3,12 @@
  * back to the static content shipped with the app. Used by /review, /dashboard, etc.
  */
 import { hrBook, getChapterByNum } from "@/content/hr";
+import { marketingBook, getChapterByNum as getMarketingChapterByNum } from "@/content/marketing";
 import type { Book, Chapter, Flashcard, QuizItem } from "@/content/hr/types";
 
 const BOOKS: Record<string, Book> = {
   hr: hrBook,
+  marketing: marketingBook,
 };
 
 export function getBook(slug: string): Book | undefined {
@@ -22,6 +24,7 @@ export function getChapterFromBook(
   num: number,
 ): Chapter | undefined {
   if (slug === "hr") return getChapterByNum(num);
+  if (slug === "marketing") return getMarketingChapterByNum(num);
   return getBook(slug)?.chapters.find((c) => c.num === num);
 }
 

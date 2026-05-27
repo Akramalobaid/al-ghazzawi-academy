@@ -31,8 +31,8 @@ export const BOOKS = [
     slug: "marketing",
     title_ar: "التسويق",
     title_en: "Marketing",
-    chapters: 0,
-    status: "coming",
+    chapters: 14,
+    status: "ready",
     color: "from-purple-500 to-pink-500",
   },
   {
