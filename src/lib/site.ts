@@ -39,8 +39,8 @@ export const BOOKS = [
     slug: "management",
     title_ar: "مبادئ الإدارة",
     title_en: "Management Principles",
-    chapters: 0,
-    status: "coming",
+    chapters: 12,
+    status: "ready",
     color: "from-orange-500 to-red-500",
   },
   {
