@@ -3,18 +3,23 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, StickyNote } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
-import { hrBook, getChapterByNum } from "@/content/hr";
+import { getBook, bookSlugs, getChapterFromBook } from "@/lib/books";
 import { NotesEditor } from "@/components/notes-editor";
 
 export function generateStaticParams() {
-  return hrBook.chapters.map((c) => ({ chapter: String(c.num) }));
+  return bookSlugs().flatMap((book) =>
+    (getBook(book)?.chapters ?? []).map((c) => ({
+      book,
+      chapter: String(c.num),
+    })),
+  );
 }
 
 export async function generateMetadata({
   params,
-}: PageProps<"/books/hr/[chapter]/notes">) {
-  const { chapter } = await params;
-  const ch = getChapterByNum(Number(chapter));
+}: PageProps<"/books/[book]/[chapter]/notes">) {
+  const { book, chapter } = await params;
+  const ch = getChapterFromBook(book, Number(chapter));
   if (!ch) return { title: "ملاحظات غير موجودة" };
   return {
     title: `ملاحظات: ${ch.title_ar}`,
@@ -24,22 +29,23 @@ export async function generateMetadata({
 
 export default async function ChapterNotesPage({
   params,
-}: PageProps<"/books/hr/[chapter]/notes">) {
-  const { chapter } = await params;
-  const ch = getChapterByNum(Number(chapter));
-  if (!ch) notFound();
+}: PageProps<"/books/[book]/[chapter]/notes">) {
+  const { book, chapter } = await params;
+  const b = getBook(book);
+  const ch = getChapterFromBook(book, Number(chapter));
+  if (!b || !ch) notFound();
 
   return (
     <>
       <Nav />
       <main className="mx-auto max-w-5xl px-4 sm:px-6 py-10 sm:py-14">
         <nav className="flex items-center gap-2 text-sm text-muted mb-6 flex-wrap">
-          <Link href="/books/hr" className="hover:text-foreground transition-colors">
-            HR
+          <Link href={`/books/${book}`} className="hover:text-foreground transition-colors">
+            {b.title_ar}
           </Link>
           <ArrowLeft className="size-3" />
           <Link
-            href={`/books/hr/${ch.num}`}
+            href={`/books/${book}/${ch.num}`}
             className="hover:text-foreground transition-colors"
           >
             الفصل {ch.num}
@@ -63,7 +69,7 @@ export default async function ChapterNotesPage({
         </div>
 
         <NotesEditor
-          bookSlug="hr"
+          bookSlug={book}
           chapterNum={ch.num}
           chapterTitle={ch.title_ar}
         />

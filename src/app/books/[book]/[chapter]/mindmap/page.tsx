@@ -3,19 +3,24 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Network } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
-import { hrBook, getChapterByNum } from "@/content/hr";
 import { MindMapView } from "@/components/mindmap-view";
 import { buildMindMap } from "@/lib/mindmap";
+import { getBook, bookSlugs, getChapterFromBook } from "@/lib/books";
 
 export function generateStaticParams() {
-  return hrBook.chapters.map((c) => ({ chapter: String(c.num) }));
+  return bookSlugs().flatMap((book) =>
+    (getBook(book)?.chapters ?? []).map((c) => ({
+      book,
+      chapter: String(c.num),
+    })),
+  );
 }
 
 export async function generateMetadata({
   params,
-}: PageProps<"/books/hr/[chapter]/mindmap">) {
-  const { chapter } = await params;
-  const ch = getChapterByNum(Number(chapter));
+}: PageProps<"/books/[book]/[chapter]/mindmap">) {
+  const { book, chapter } = await params;
+  const ch = getChapterFromBook(book, Number(chapter));
   if (!ch) return { title: "خريطة ذهنية غير موجودة" };
   return {
     title: `خريطة ذهنية: ${ch.title_ar}`,
@@ -25,10 +30,11 @@ export async function generateMetadata({
 
 export default async function ChapterMindMapPage({
   params,
-}: PageProps<"/books/hr/[chapter]/mindmap">) {
-  const { chapter } = await params;
-  const ch = getChapterByNum(Number(chapter));
-  if (!ch) notFound();
+}: PageProps<"/books/[book]/[chapter]/mindmap">) {
+  const { book, chapter } = await params;
+  const b = getBook(book);
+  const ch = getChapterFromBook(book, Number(chapter));
+  if (!b || !ch) notFound();
 
   const root = buildMindMap(ch.title_ar, ch.summary.detailed);
 
@@ -37,12 +43,12 @@ export default async function ChapterMindMapPage({
       <Nav />
       <main className="mx-auto max-w-5xl px-4 sm:px-6 py-10 sm:py-14">
         <nav className="flex items-center gap-2 text-sm text-muted mb-6 flex-wrap">
-          <Link href="/books/hr" className="hover:text-foreground transition-colors">
-            HR
+          <Link href={`/books/${book}`} className="hover:text-foreground transition-colors">
+            {b.title_ar}
           </Link>
           <ArrowLeft className="size-3" />
           <Link
-            href={`/books/hr/${ch.num}`}
+            href={`/books/${book}/${ch.num}`}
             className="hover:text-foreground transition-colors"
           >
             الفصل {ch.num}
@@ -72,21 +78,21 @@ export default async function ChapterMindMapPage({
 
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           <Link
-            href={`/books/hr/${ch.num}/summary`}
+            href={`/books/${book}/${ch.num}/summary`}
             className="rounded-xl border border-border/60 bg-card p-4 hover:border-royal-300/60 transition-colors text-center"
           >
             <div className="text-xs text-muted">للتعمّق</div>
             <div className="text-sm font-bold text-foreground mt-1">اقرأ الملخص</div>
           </Link>
           <Link
-            href={`/books/hr/${ch.num}/flashcards`}
+            href={`/books/${book}/${ch.num}/flashcards`}
             className="rounded-xl border border-border/60 bg-card p-4 hover:border-amber-300/60 transition-colors text-center"
           >
             <div className="text-xs text-muted">لحفظ المصطلحات</div>
             <div className="text-sm font-bold text-foreground mt-1">البطاقات</div>
           </Link>
           <Link
-            href={`/books/hr/${ch.num}/quiz`}
+            href={`/books/${book}/${ch.num}/quiz`}
             className="rounded-xl border border-border/60 bg-card p-4 hover:border-cyan-300/60 transition-colors text-center"
           >
             <div className="text-xs text-muted">للتقييم</div>

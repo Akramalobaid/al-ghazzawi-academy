@@ -297,7 +297,7 @@ export function FlashcardsDeck({
             </button>
             {hasNext && (
               <Link
-                href={`/books/hr/${chapterNum + 1}/flashcards`}
+                href={`/books/${bookSlug}/${chapterNum + 1}/flashcards`}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 text-white px-3 py-1.5 text-xs font-bold hover:bg-amber-700 transition-colors"
               >
                 بطاقات الفصل التالي

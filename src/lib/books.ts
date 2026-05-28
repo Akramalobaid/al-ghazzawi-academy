@@ -2,8 +2,8 @@
  * Book registry — single source of truth for resolving (bookSlug, chapterNum, cardIndex)
  * back to the static content shipped with the app. Used by /review, /dashboard, etc.
  */
-import { hrBook, getChapterByNum } from "@/content/hr";
-import { marketingBook, getChapterByNum as getMarketingChapterByNum } from "@/content/marketing";
+import { hrBook } from "@/content/hr";
+import { marketingBook } from "@/content/marketing";
 import type { Book, Chapter, Flashcard, QuizItem } from "@/content/hr/types";
 
 const BOOKS: Record<string, Book> = {
@@ -19,12 +19,23 @@ export function allBooks(): Book[] {
   return Object.values(BOOKS);
 }
 
+/** Ready book slugs, in registry order — used by generateStaticParams. */
+export function bookSlugs(): string[] {
+  return Object.keys(BOOKS);
+}
+
+const ORDINALS_AR = ["الأول", "الثاني", "الثالث", "الرابع", "الخامس"];
+
+/** Arabic ordinal label for a book ("الكتاب الأول"), based on registry order. */
+export function bookOrdinalLabel(slug: string): string {
+  const i = bookSlugs().indexOf(slug);
+  return i >= 0 && i < ORDINALS_AR.length ? `الكتاب ${ORDINALS_AR[i]}` : "كتاب";
+}
+
 export function getChapterFromBook(
   slug: string,
   num: number,
 ): Chapter | undefined {
-  if (slug === "hr") return getChapterByNum(num);
-  if (slug === "marketing") return getMarketingChapterByNum(num);
   return getBook(slug)?.chapters.find((c) => c.num === num);
 }
 

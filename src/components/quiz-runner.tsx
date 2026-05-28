@@ -159,14 +159,14 @@ export function QuizRunner({
             أعد المحاولة
           </button>
           <Link
-            href={`/books/hr/${chapterNum}`}
+            href={`/books/${bookSlug}/${chapterNum}`}
             className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-card px-5 py-2.5 text-sm font-bold hover:border-foreground/40 transition-colors"
           >
             رجوع للفصل
           </Link>
           {hasNext && (
             <Link
-              href={`/books/hr/${chapterNum + 1}/quiz`}
+              href={`/books/${bookSlug}/${chapterNum + 1}/quiz`}
               className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 text-white px-5 py-2.5 text-sm font-bold hover:bg-cyan-700 transition-colors"
             >
               كويز الفصل التالي

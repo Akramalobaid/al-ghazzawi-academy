@@ -4,17 +4,22 @@ import { ArrowLeft, ArrowRight, BookOpen, FileText, Layers } from "lucide-react"
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { SummaryViewer } from "@/components/summary-viewer";
-import { marketingBook, getChapterByNum } from "@/content/marketing";
+import { getBook, bookSlugs, getChapterFromBook } from "@/lib/books";
 
 export function generateStaticParams() {
-  return marketingBook.chapters.map((c) => ({ chapter: String(c.num) }));
+  return bookSlugs().flatMap((book) =>
+    (getBook(book)?.chapters ?? []).map((c) => ({
+      book,
+      chapter: String(c.num),
+    })),
+  );
 }
 
 export async function generateMetadata({
   params,
-}: PageProps<"/books/marketing/[chapter]/summary">) {
-  const { chapter } = await params;
-  const ch = getChapterByNum(Number(chapter));
+}: PageProps<"/books/[book]/[chapter]/summary">) {
+  const { book, chapter } = await params;
+  const ch = getChapterFromBook(book, Number(chapter));
   if (!ch) return { title: "ملخص غير موجود" };
   return {
     title: `ملخص: ${ch.title_ar}`,
@@ -24,25 +29,26 @@ export async function generateMetadata({
 
 export default async function SummaryPage({
   params,
-}: PageProps<"/books/marketing/[chapter]/summary">) {
-  const { chapter } = await params;
-  const ch = getChapterByNum(Number(chapter));
-  if (!ch) notFound();
+}: PageProps<"/books/[book]/[chapter]/summary">) {
+  const { book, chapter } = await params;
+  const b = getBook(book);
+  const ch = getChapterFromBook(book, Number(chapter));
+  if (!b || !ch) notFound();
 
   const prev = ch.num > 1 ? ch.num - 1 : null;
-  const next = ch.num < marketingBook.chapters.length ? ch.num + 1 : null;
+  const next = ch.num < b.chapters.length ? ch.num + 1 : null;
 
   return (
     <>
       <Nav />
       <main className="mx-auto max-w-3xl px-4 sm:px-6 py-10 sm:py-14">
         <nav className="flex items-center gap-2 text-sm text-muted mb-6 flex-wrap">
-          <Link href="/books/marketing" className="hover:text-foreground transition-colors">
-            التسويق
+          <Link href={`/books/${book}`} className="hover:text-foreground transition-colors">
+            {b.title_ar}
           </Link>
           <ArrowLeft className="size-3" />
           <Link
-            href={`/books/marketing/${ch.num}`}
+            href={`/books/${book}/${ch.num}`}
             className="hover:text-foreground transition-colors"
           >
             الفصل {ch.num}
@@ -69,12 +75,12 @@ export default async function SummaryPage({
             </div>
           </div>
 
-          <SummaryViewer summary={ch.summary} chapterNum={ch.num} bookSlug="marketing" />
+          <SummaryViewer summary={ch.summary} chapterNum={ch.num} bookSlug={book} />
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <Link
-            href={`/books/marketing/${ch.num}/quiz`}
+            href={`/books/${book}/${ch.num}/quiz`}
             className="group rounded-2xl border border-border/60 bg-card p-4 shadow-soft hover:shadow-card hover:border-cyan-300/60 transition-all flex items-center gap-3"
           >
             <div className="size-10 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 text-white flex items-center justify-center">
@@ -87,7 +93,7 @@ export default async function SummaryPage({
             <ArrowLeft className="size-4 text-muted group-hover:-translate-x-1 transition-transform" />
           </Link>
           <Link
-            href={`/books/marketing/${ch.num}/flashcards`}
+            href={`/books/${book}/${ch.num}/flashcards`}
             className="group rounded-2xl border border-border/60 bg-card p-4 shadow-soft hover:shadow-card hover:border-amber-300/60 transition-all flex items-center gap-3"
           >
             <div className="size-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center">
@@ -104,7 +110,7 @@ export default async function SummaryPage({
         <div className="mt-10 flex items-center justify-between gap-3">
           {prev ? (
             <Link
-              href={`/books/marketing/${prev}/summary`}
+              href={`/books/${book}/${prev}/summary`}
               className="inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:text-royal-700 transition-colors"
             >
               <ArrowRight className="size-4" />
@@ -115,7 +121,7 @@ export default async function SummaryPage({
           )}
           {next && (
             <Link
-              href={`/books/marketing/${next}/summary`}
+              href={`/books/${book}/${next}/summary`}
               className="inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:text-royal-700 transition-colors"
             >
               الفصل التالي

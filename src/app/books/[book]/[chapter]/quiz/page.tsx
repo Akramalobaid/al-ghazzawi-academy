@@ -3,18 +3,23 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Layers } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
-import { marketingBook, getChapterByNum } from "@/content/marketing";
+import { getBook, bookSlugs, getChapterFromBook } from "@/lib/books";
 import { QuizRunner } from "@/components/quiz-runner";
 
 export function generateStaticParams() {
-  return marketingBook.chapters.map((c) => ({ chapter: String(c.num) }));
+  return bookSlugs().flatMap((book) =>
+    (getBook(book)?.chapters ?? []).map((c) => ({
+      book,
+      chapter: String(c.num),
+    })),
+  );
 }
 
 export async function generateMetadata({
   params,
-}: PageProps<"/books/marketing/[chapter]/quiz">) {
-  const { chapter } = await params;
-  const ch = getChapterByNum(Number(chapter));
+}: PageProps<"/books/[book]/[chapter]/quiz">) {
+  const { book, chapter } = await params;
+  const ch = getChapterFromBook(book, Number(chapter));
   if (!ch) return { title: "كويز غير موجود" };
   return {
     title: `كويز: ${ch.title_ar}`,
@@ -24,22 +29,23 @@ export async function generateMetadata({
 
 export default async function QuizPage({
   params,
-}: PageProps<"/books/marketing/[chapter]/quiz">) {
-  const { chapter } = await params;
-  const ch = getChapterByNum(Number(chapter));
-  if (!ch) notFound();
+}: PageProps<"/books/[book]/[chapter]/quiz">) {
+  const { book, chapter } = await params;
+  const b = getBook(book);
+  const ch = getChapterFromBook(book, Number(chapter));
+  if (!b || !ch) notFound();
 
   return (
     <>
       <Nav />
       <main className="mx-auto max-w-2xl px-4 sm:px-6 py-10 sm:py-14">
         <nav className="flex items-center gap-2 text-sm text-muted mb-6 flex-wrap">
-          <Link href="/books/marketing" className="hover:text-foreground transition-colors">
-            التسويق
+          <Link href={`/books/${book}`} className="hover:text-foreground transition-colors">
+            {b.title_ar}
           </Link>
           <ArrowLeft className="size-3" />
           <Link
-            href={`/books/marketing/${ch.num}`}
+            href={`/books/${book}/${ch.num}`}
             className="hover:text-foreground transition-colors"
           >
             الفصل {ch.num}
@@ -65,8 +71,9 @@ export default async function QuizPage({
         <QuizRunner
           questions={ch.quiz}
           chapterNum={ch.num}
-          hasNext={ch.num < marketingBook.chapters.length}
+          hasNext={ch.num < b.chapters.length}
           hasPrev={ch.num > 1}
+          bookSlug={book}
         />
       </main>
       <Footer />
