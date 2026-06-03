@@ -34,15 +34,6 @@ export async function POST(request: NextRequest) {
     return fail("invalid", 400);
   }
 
-  // TEMP DEBUG — diagnoses the Vercel env issue; removed right after.
-  const _dbg = {
-    hasUrl: !!process.env.SUPABASE_URL,
-    urlLen: (process.env.SUPABASE_URL ?? "").length,
-    hasKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    keyPrefix: (process.env.SUPABASE_SERVICE_ROLE_KEY ?? "").slice(0, 10),
-    keyLen: (process.env.SUPABASE_SERVICE_ROLE_KEY ?? "").length,
-  };
-
   try {
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase.rpc("claim_code", {
@@ -52,24 +43,17 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      return Response.json(
-        { ok: false, reason: "network", _dbg: { ..._dbg, rpcError: error.message } },
-        { status: 500 },
-      );
+      console.error("[activate] rpc error:", error.message);
+      return fail("network", 500);
     }
 
     // `data` is the jsonb { ok, reason } returned by claim_code.
     if (data && typeof data.ok === "boolean") {
       return Response.json(data);
     }
-    return Response.json(
-      { ok: false, reason: "network", _dbg: { ..._dbg, note: "no data" } },
-      { status: 500 },
-    );
+    return fail("network", 500);
   } catch (err) {
-    return Response.json(
-      { ok: false, reason: "network", _dbg: { ..._dbg, err: String(err) } },
-      { status: 500 },
-    );
+    console.error("[activate] failed:", err);
+    return fail("network", 500);
   }
 }
