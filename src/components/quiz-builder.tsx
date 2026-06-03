@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   BookOpen,
   CheckSquare,
   ListChecks,
+  Lock,
   Square,
   Sparkles,
   Zap,
@@ -18,6 +20,7 @@ import {
   type GeneratedQuestion,
 } from "@/lib/quiz-generator";
 import { allBooks } from "@/lib/books";
+import { useAccess, canInteract } from "@/lib/access";
 import { CustomQuizRunner } from "./custom-quiz-runner";
 
 const DIFFICULTIES: DifficultyFilter[] = ["mixed", "easy", "medium", "hard"];
@@ -34,31 +37,58 @@ export function QuizBuilder() {
   const [difficulty, setDifficulty] = useState<DifficultyFilter>("mixed");
   const [quiz, setQuiz] = useState<GeneratedQuestion[] | null>(null);
 
+  // Access gating: a trial student may only build quizzes from chapters they can
+  // actually interact with (the free trial chapter). Computed during render (no
+  // effect) so it stays correct as the tier loads — closing the loophole where
+  // the custom builder bypassed per-chapter locks.
+  const { tier, loading } = useAccess();
+  const effectiveTier = loading ? "trial" : tier; // conservative while loading
+  const isUnlocked = (num: number) => canInteract(bookSlug, num, effectiveTier);
+  const unlockedChapters = chapters.filter((c) => isUnlocked(c.num));
+  // Only unlocked chapters count toward generation, regardless of stale picks.
+  const effectiveSelected = selectedChapters.filter(isUnlocked);
+
   const available = useMemo(
-    () => countAvailable(bookSlug, selectedChapters, difficulty),
-    [bookSlug, selectedChapters, difficulty],
+    () =>
+      countAvailable(
+        bookSlug,
+        selectedChapters.filter((num) => canInteract(bookSlug, num, effectiveTier)),
+        difficulty,
+      ),
+    [bookSlug, selectedChapters, difficulty, effectiveTier],
   );
 
   const effectiveCount = Math.min(count, available);
 
   function toggleChapter(num: number) {
+    if (!isUnlocked(num)) return;
     setSelectedChapters((prev) =>
-      prev.includes(num) ? prev.filter((n) => n !== num) : [...prev, num].sort((a, b) => a - b),
+      prev.includes(num)
+        ? prev.filter((n) => n !== num)
+        : [...prev, num].sort((a, b) => a - b),
     );
   }
 
+  const allUnlockedSelected =
+    unlockedChapters.length > 0 &&
+    unlockedChapters.every((c) => selectedChapters.includes(c.num));
+
   function toggleAll() {
-    if (selectedChapters.length === chapters.length) {
-      setSelectedChapters([]);
+    if (allUnlockedSelected) {
+      setSelectedChapters((prev) => prev.filter((n) => !isUnlocked(n)));
     } else {
-      setSelectedChapters(chapters.map((c) => c.num));
+      setSelectedChapters((prev) =>
+        Array.from(
+          new Set([...prev, ...unlockedChapters.map((c) => c.num)]),
+        ).sort((a, b) => a - b),
+      );
     }
   }
 
   function start() {
     const generated = generateCustomQuiz({
       bookSlug,
-      chapterNums: selectedChapters,
+      chapterNums: effectiveSelected,
       count,
       difficulty,
     });
@@ -75,11 +105,28 @@ export function QuizBuilder() {
     );
   }
 
-  const allSelected = selectedChapters.length === chapters.length;
-  const canStart = selectedChapters.length > 0 && available > 0;
+  const canStart = effectiveSelected.length > 0 && available > 0;
 
   return (
     <div className="space-y-6">
+      {/* Trial notice */}
+      {effectiveTier === "trial" && (
+        <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-sm">
+          <Lock className="size-4 text-amber-600 shrink-0 mt-0.5" />
+          <div className="text-amber-800">
+            <span className="font-bold">حساب تجريبي:</span> الكويز المخصص متاح
+            للفصل المجاني فقط.{" "}
+            <Link
+              href="/welcome"
+              className="font-bold underline hover:text-amber-900"
+            >
+              فعّل حسابك
+            </Link>{" "}
+            لفتح كل الفصول.
+          </div>
+        </div>
+      )}
+
       {/* Book picker */}
       {books.length > 1 && (
         <section className="rounded-2xl border border-border/60 bg-card p-5">
@@ -114,30 +161,37 @@ export function QuizBuilder() {
           <div className="flex items-center gap-2">
             <ListChecks className="size-4 text-cyan-600" />
             <h3 className="text-sm font-bold text-foreground">
-              الفصول ({selectedChapters.length} / {chapters.length})
+              الفصول ({effectiveSelected.length} / {chapters.length})
             </h3>
           </div>
           <button
             onClick={toggleAll}
             className="text-xs font-bold text-cyan-700 hover:text-cyan-900 transition-colors"
           >
-            {allSelected ? "إلغاء الكل" : "اختر الكل"}
+            {allUnlockedSelected ? "إلغاء الكل" : "اختر الكل"}
           </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {chapters.map((c) => {
-            const checked = selectedChapters.includes(c.num);
+            const unlocked = isUnlocked(c.num);
+            const checked = unlocked && selectedChapters.includes(c.num);
             return (
               <button
                 key={c.num}
                 onClick={() => toggleChapter(c.num)}
+                disabled={!unlocked}
+                title={unlocked ? undefined : "يتطلب تفعيل الحساب"}
                 className={`text-start rounded-xl border-2 px-3 py-2.5 text-sm font-medium transition-all flex items-start gap-2 ${
                   checked
                     ? "border-cyan-500 bg-cyan-50/50"
-                    : "border-border bg-card hover:border-foreground/30"
+                    : unlocked
+                      ? "border-border bg-card hover:border-foreground/30"
+                      : "border-border bg-border/20 opacity-60 cursor-not-allowed"
                 }`}
               >
-                {checked ? (
+                {!unlocked ? (
+                  <Lock className="size-4 text-amber-500 mt-0.5 shrink-0" />
+                ) : checked ? (
                   <CheckSquare className="size-4 text-cyan-600 mt-0.5 shrink-0" />
                 ) : (
                   <Square className="size-4 text-muted mt-0.5 shrink-0" />
@@ -151,7 +205,7 @@ export function QuizBuilder() {
                   </div>
                 </div>
                 <span className="text-[10px] text-muted shrink-0 mt-0.5">
-                  {c.quizCount} س
+                  {unlocked ? `${c.quizCount} س` : "🔒"}
                 </span>
               </button>
             );
@@ -224,9 +278,9 @@ export function QuizBuilder() {
         ابدأ الكويز ({effectiveCount} سؤال)
       </button>
 
-      {available === 0 && selectedChapters.length > 0 && (
+      {available === 0 && effectiveSelected.length > 0 && (
         <p className="text-center text-sm text-rose-700">
-          لا توجد أسئلة مطابقة — جرّب صعوبة "مختلط" أو فصولاً أخرى
+          لا توجد أسئلة مطابقة — جرّب صعوبة «مختلط» أو فصولاً أخرى
         </p>
       )}
     </div>

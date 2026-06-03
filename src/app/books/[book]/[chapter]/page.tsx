@@ -4,6 +4,8 @@ import { ArrowLeft, BookOpen, FileText, Layers, Network, Sparkles, StickyNote } 
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { ChapterProgress } from "@/components/chapter-progress";
+import { ChapterAccessNotice } from "@/components/chapter-access-notice";
+import { ActivityLockBadge } from "@/components/activity-lock-badge";
 import { getBook, bookSlugs, getChapterFromBook } from "@/lib/books";
 
 export function generateStaticParams() {
@@ -85,6 +87,8 @@ export default async function ChapterPage({ params }: PageProps<"/books/[book]/[
           </div>
         </div>
 
+        <ChapterAccessNotice bookSlug={book} chapterNum={ch.num} />
+
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           <Link
             href={`/books/${book}/${ch.num}/summary`}
@@ -107,6 +111,7 @@ export default async function ChapterPage({ params }: PageProps<"/books/[book]/[
             href={`/books/${book}/${ch.num}/quiz`}
             className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-6 shadow-soft hover:shadow-card hover:border-cyan-300/60 transition-all"
           >
+            <ActivityLockBadge bookSlug={book} chapterNum={ch.num} />
             <div className="size-11 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 text-white flex items-center justify-center shadow-soft">
               <Layers className="size-5" />
             </div>
@@ -124,6 +129,7 @@ export default async function ChapterPage({ params }: PageProps<"/books/[book]/[
             href={`/books/${book}/${ch.num}/flashcards`}
             className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-6 shadow-soft hover:shadow-card hover:border-amber-300/60 transition-all"
           >
+            <ActivityLockBadge bookSlug={book} chapterNum={ch.num} />
             <div className="size-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center shadow-soft">
               <BookOpen className="size-5" />
             </div>

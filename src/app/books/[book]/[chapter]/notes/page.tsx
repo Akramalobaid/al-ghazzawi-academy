@@ -5,6 +5,7 @@ import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { getBook, bookSlugs, getChapterFromBook } from "@/lib/books";
 import { NotesEditor } from "@/components/notes-editor";
+import { InteractionGate } from "@/components/interaction-gate";
 
 export function generateStaticParams() {
   return bookSlugs().flatMap((book) =>
@@ -68,11 +69,13 @@ export default async function ChapterNotesPage({
           </div>
         </div>
 
-        <NotesEditor
-          bookSlug={book}
-          chapterNum={ch.num}
-          chapterTitle={ch.title_ar}
-        />
+        <InteractionGate bookSlug={book} chapterNum={ch.num}>
+          <NotesEditor
+            bookSlug={book}
+            chapterNum={ch.num}
+            chapterTitle={ch.title_ar}
+          />
+        </InteractionGate>
       </main>
       <Footer />
     </>

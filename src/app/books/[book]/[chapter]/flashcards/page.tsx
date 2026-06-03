@@ -5,6 +5,7 @@ import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { getBook, bookSlugs, getChapterFromBook } from "@/lib/books";
 import { FlashcardsDeck } from "@/components/flashcards-deck";
+import { InteractionGate } from "@/components/interaction-gate";
 
 export function generateStaticParams() {
   return bookSlugs().flatMap((book) =>
@@ -68,12 +69,14 @@ export default async function FlashcardsPage({
           </div>
         </div>
 
-        <FlashcardsDeck
-          cards={ch.flashcards}
-          chapterNum={ch.num}
-          hasNext={ch.num < b.chapters.length}
-          bookSlug={book}
-        />
+        <InteractionGate bookSlug={book} chapterNum={ch.num}>
+          <FlashcardsDeck
+            cards={ch.flashcards}
+            chapterNum={ch.num}
+            hasNext={ch.num < b.chapters.length}
+            bookSlug={book}
+          />
+        </InteractionGate>
       </main>
       <Footer />
     </>

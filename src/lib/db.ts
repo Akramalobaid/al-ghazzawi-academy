@@ -138,6 +138,12 @@ export interface Preferences {
   studyPlan?: StudyPlan;
   /** name printed on certificates */
   studentName?: string;
+  /** access tier — "trial" (default) unlocks only the trial chapter; "full" unlocks everything */
+  accessTier?: "trial" | "full";
+  /** ms epoch when an activation code unlocked full access */
+  unlockedAt?: number;
+  /** the activation code that was redeemed (kept for reference / re-validation) */
+  activationCode?: string;
 }
 
 // =====================

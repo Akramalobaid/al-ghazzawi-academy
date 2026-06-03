@@ -5,6 +5,7 @@ import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { getBook, bookSlugs, getChapterFromBook } from "@/lib/books";
 import { QuizRunner } from "@/components/quiz-runner";
+import { InteractionGate } from "@/components/interaction-gate";
 
 export function generateStaticParams() {
   return bookSlugs().flatMap((book) =>
@@ -68,13 +69,15 @@ export default async function QuizPage({
           </div>
         </div>
 
-        <QuizRunner
-          questions={ch.quiz}
-          chapterNum={ch.num}
-          hasNext={ch.num < b.chapters.length}
-          hasPrev={ch.num > 1}
-          bookSlug={book}
-        />
+        <InteractionGate bookSlug={book} chapterNum={ch.num}>
+          <QuizRunner
+            questions={ch.quiz}
+            chapterNum={ch.num}
+            hasNext={ch.num < b.chapters.length}
+            hasPrev={ch.num > 1}
+            bookSlug={book}
+          />
+        </InteractionGate>
       </main>
       <Footer />
     </>

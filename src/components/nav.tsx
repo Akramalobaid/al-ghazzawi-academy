@@ -3,6 +3,7 @@ import { Bot, Search } from "lucide-react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { StreakBadge } from "./streak-badge";
+import { AccessBadge } from "./access-badge";
 
 export function Nav() {
   return (
@@ -45,6 +46,7 @@ export function Nav() {
           >
             <Search className="size-4" />
           </Link>
+          <AccessBadge />
           <StreakBadge />
           <ThemeToggle />
           <Link
