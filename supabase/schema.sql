@@ -89,3 +89,7 @@ $$;
 -- لا تسمح لأحد بمناداة الدالة مباشرة سوى الخادم (service_role).
 revoke all on function public.claim_code(text, text, text) from public, anon, authenticated;
 grant execute on function public.claim_code(text, text, text) to service_role;
+
+-- صلاحية service_role على الجدول (للإدراج/القراءة من السكربت والخادم).
+-- لازمة لأن "expose new tables" مُعطّل، فلا تُمنح الجداول الجديدة تلقائياً.
+grant all on table public.access_codes to service_role;
