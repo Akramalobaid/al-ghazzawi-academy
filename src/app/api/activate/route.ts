@@ -34,6 +34,12 @@ export async function POST(request: NextRequest) {
     return fail("invalid", 400);
   }
 
+  // Owner master code — unlocks everything (incl. printing) without the ledger.
+  const ownerCode = (process.env.OWNER_CODE ?? "").trim().toUpperCase();
+  if (ownerCode && code === ownerCode) {
+    return Response.json({ ok: true, owner: true, can_print: true });
+  }
+
   try {
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase.rpc("claim_code", {

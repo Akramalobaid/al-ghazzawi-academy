@@ -2,6 +2,7 @@ import { Bot } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { AssistantClient } from "@/components/assistant-client";
+import { AccessGate } from "@/components/access-gate";
 
 export const metadata = {
   title: "المساعد الذكي · أكاديمية الغزاوي",
@@ -31,7 +32,9 @@ export default function AssistantPage() {
           </div>
         </div>
 
-        <AssistantClient />
+        <AccessGate bookSlug="" chapterNum={0} whatLocked="المساعد الذكي">
+          <AssistantClient />
+        </AccessGate>
       </main>
       <Footer />
     </>

@@ -4,6 +4,7 @@ import { ArrowLeft, Network } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { MindMapView } from "@/components/mindmap-view";
+import { AccessGate } from "@/components/access-gate";
 import { buildMindMap } from "@/lib/mindmap";
 import { getBook, bookSlugs, getChapterFromBook } from "@/lib/books";
 
@@ -74,7 +75,9 @@ export default async function ChapterMindMapPage({
           </div>
         </div>
 
-        <MindMapView root={root} />
+        <AccessGate bookSlug={book} chapterNum={ch.num} whatLocked="الخريطة الذهنية">
+          <MindMapView root={root} />
+        </AccessGate>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           <Link

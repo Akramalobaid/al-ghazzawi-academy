@@ -1,6 +1,7 @@
-import { Globe, Heart, Shield, Sparkles } from "lucide-react";
+import { Globe, Heart, Mail, MessageCircle, Send, Shield, Sparkles } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
+import { SITE, whatsappLink } from "@/lib/site";
 
 export const metadata = {
   title: "عن المنصة",
@@ -25,7 +26,7 @@ export default function AboutPage() {
         <div className="mt-10 prose prose-lg max-w-none text-foreground/90">
           <p className="text-lg leading-relaxed text-muted">
             أكاديمية الغزاوي هي منصة تعليمية رقمية متخصصة في برامج ماجستير إدارة الأعمال،
-            تجمع بين الكتب الأصلية الكاملة، والملخصات الذكية بمستويات متعددة،
+            تجمع بين الكتب الأصلية الكاملة، والملخصات الذكية بمستويات متعددة,
             وآلاف الأسئلة التدريبية، وبطاقات المصطلحات — كل ذلك بلغة عربية واضحة
             تحترم عقل القارئ ومستواه الأكاديمي.
           </p>
@@ -35,8 +36,8 @@ export default function AboutPage() {
           {[
             {
               icon: Globe,
-              title: "مجاناً، بلا حدود",
-              desc: "كل المحتوى متاح بدون اشتراك في هذه المرحلة.",
+              title: "جرّب قبل أن تشترك",
+              desc: "الفصل الأول من أول كتاب متاح مجاناً بالكامل — جرّبه ثم فعّل بقية المحتوى بكود.",
             },
             {
               icon: Shield,
@@ -73,6 +74,38 @@ export default function AboutPage() {
             أن نُتيح لكل طالب MBA عربي فرصة الدراسة بأدوات احترافية بمستوى أفضل المنصات
             العالمية، بلغته الأم، وبجودة لا يضطر معها للبحث عن مصادر باللغة الإنجليزية.
           </p>
+        </div>
+
+        <div
+          id="contact"
+          className="mt-8 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-card p-8 scroll-mt-20"
+        >
+          <h2 className="text-2xl font-bold text-foreground">تواصل معنا</h2>
+          <p className="mt-2 text-muted leading-relaxed">
+            للحصول على كود تفعيل، أو للاستفسار، أو لطلب إعداد منهاجك الدراسي مجاناً —
+            نحن بخدمتك. أسرع وسيلة هي واتساب.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <a
+              href={whatsappLink(
+                "السلام عليكم، أرغب بالحصول على كود تفعيل لأكاديمية الغزاوي.",
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 text-white px-5 py-3 text-sm font-bold shadow-soft hover:bg-emerald-700 transition-colors"
+            >
+              <MessageCircle className="size-4" />
+              <span dir="ltr">واتساب: {SITE.contact.whatsappDisplay}</span>
+            </a>
+            <span className="inline-flex items-center gap-2 rounded-xl border border-border/70 bg-card px-5 py-3 text-sm font-semibold text-muted">
+              <Mail className="size-4" />
+              <span dir="ltr">{SITE.contact.email}</span>
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-xl border border-border/70 bg-card px-5 py-3 text-sm font-semibold text-muted">
+              <Send className="size-4" />
+              <span dir="ltr">@{SITE.contact.telegram}</span>
+            </span>
+          </div>
         </div>
       </main>
       <Footer />

@@ -16,7 +16,22 @@ export const SITE = {
     name: "Akram",
     url: "https://github.com/Akramalobaid",
   },
+  contact: {
+    // ✅ القناة الحقيقية الوحيدة حالياً — واتساب
+    whatsapp: "963968612861", // أرقام فقط (لرابط wa.me)
+    whatsappDisplay: "+963 968 612 861",
+    // 🎭 قنوات شكلية (غير مفعّلة بعد) — للإيحاء باتساع وسائل التواصل، تُفعّل لاحقاً
+    email: "info@alghazzawi-academy.com",
+    telegram: "AlGhazzawiAcademy",
+    instagram: "alghazzawi.academy",
+  },
 } as const;
+
+/** Build a wa.me link to the academy's WhatsApp, optionally with a prefilled message. */
+export function whatsappLink(message?: string): string {
+  const base = `https://wa.me/${SITE.contact.whatsapp}`;
+  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
+}
 
 export const BOOKS = [
   {

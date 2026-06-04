@@ -29,6 +29,9 @@ export function Nav() {
           <Link href="/dashboard" className="text-muted hover:text-foreground transition-colors">
             التقدم
           </Link>
+          <Link href="/custom-curriculum" className="text-cyan-700 hover:text-cyan-600 transition-colors font-semibold">
+            اطلب منهجك
+          </Link>
         </nav>
 
         <div className="flex items-center gap-1.5">

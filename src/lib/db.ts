@@ -138,8 +138,10 @@ export interface Preferences {
   studyPlan?: StudyPlan;
   /** name printed on certificates */
   studentName?: string;
-  /** access tier — "trial" (default) unlocks only the trial chapter; "full" unlocks everything */
-  accessTier?: "trial" | "full";
+  /** access tier — "trial" (default) unlocks only the free sample; "full" unlocks everything; "owner" = platform owner */
+  accessTier?: "trial" | "full" | "owner";
+  /** may the student print? (owner ⇒ always; full ⇒ only if the owner enabled it for their code) */
+  canPrint?: boolean;
   /** ms epoch when an activation code unlocked full access */
   unlockedAt?: number;
   /** the activation code that was redeemed (kept for reference / re-validation) */

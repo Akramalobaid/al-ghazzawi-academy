@@ -1,18 +1,50 @@
 import Link from "next/link";
-import {
-  ArrowLeft,
-  BookOpen,
-  Brain,
-  FileText,
-  LayoutGrid,
-  Sparkles,
-  Target,
-  Zap,
-} from "lucide-react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
+import { LogoMark } from "@/components/logo";
 import { TodayBanner } from "@/components/today-banner";
-import { BOOKS, SITE } from "@/lib/site";
+import { BOOKS, whatsappLink } from "@/lib/site";
+
+const FEATURES = [
+  {
+    n: "٠١",
+    title: "كتب أصلية كاملة",
+    desc: "اقرأ الكتب الكاملة بصيغة PDF داخل المنصة — بلا تحميل أو خروج.",
+  },
+  {
+    n: "٠٢",
+    title: "ملخصات بثلاثة مستويات",
+    desc: "مكثّف للمراجعة السريعة، عادي للفهم، ومفصّل للإتقان العميق.",
+  },
+  {
+    n: "٠٣",
+    title: "أسئلة متدرّجة",
+    desc: "أكثر من ٣٠ سؤالاً لكل فصل على ثلاث درجات صعوبة، مع الشرح.",
+  },
+  {
+    n: "٠٤",
+    title: "بطاقات بتكرار متباعد",
+    desc: "مصطلحات عربية وإنجليزية بخوارزمية SM-2 لترسيخ الحفظ.",
+  },
+  {
+    n: "٠٥",
+    title: "مراجعة ذكية وتتبّع",
+    desc: "لوحة تقدّم، خطة دراسة، وشارات — تعرف أين أنت بالضبط.",
+  },
+  {
+    n: "٠٦",
+    title: "تعمل بلا إنترنت",
+    desc: "ثبّتها كتطبيق (PWA) وادرس في أي وقتٍ ومكان.",
+  },
+];
+
+const STATS = [
+  { k: "كتب أصلية", v: "3" },
+  { k: "فصلاً دراسياً", v: "40+" },
+  { k: "سؤال تدريبي", v: "1000+" },
+  { k: "بطاقة ذكية", v: "1000+" },
+];
 
 export default function HomePage() {
   return (
@@ -20,137 +52,90 @@ export default function HomePage() {
       <Nav />
       <main>
         <TodayBanner />
-        {/* HERO */}
-        <section className="relative overflow-hidden">
-          <div className="absolute inset-0 gradient-mesh opacity-60" />
-          <div className="absolute inset-0 gradient-radial-hero" />
 
-          <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-20 pb-24 sm:pt-28 sm:pb-32">
-            {/* Eyebrow badge */}
-            <div className="flex justify-center mb-8">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 backdrop-blur px-4 py-1.5 text-xs font-medium text-muted shadow-soft">
-                <Sparkles className="size-3.5 text-cyan-brand" />
-                <span>منصة MBA عربية احترافية · إصدار تجريبي</span>
-              </div>
+        {/* HERO — editorial, asymmetric */}
+        <section className="relative overflow-hidden border-b border-border/60">
+          <div className="pointer-events-none absolute -start-40 -top-28 opacity-[0.09]">
+            <LogoMark className="size-[640px]" />
+          </div>
+          <div className="pointer-events-none absolute inset-0 gradient-radial-hero" />
+          <div className="pointer-events-none absolute top-0 end-8 size-[26rem] rounded-full bg-amber-200/25 blur-3xl -translate-y-1/3" />
+
+          <div className="relative rise-in mx-auto max-w-6xl px-4 sm:px-6 pt-20 pb-20 sm:pt-28 sm:pb-24">
+            <div className="flex items-center gap-3 text-xs font-mono tracking-widest text-amber-600">
+              <span className="h-px w-10 bg-cyan-500/50" />
+              MBA · بالعربية · إصدار تجريبي
             </div>
 
-            {/* Heading */}
-            <h1 className="mx-auto max-w-4xl text-center text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-foreground leading-[1.05]">
-              ادرس{" "}
-              <span className="relative inline-block">
-                <span className="relative bg-gradient-to-br from-royal-600 via-royal-500 to-cyan-brand bg-clip-text text-transparent">
-                  MBA
-                </span>
-              </span>
-              {" "}بطريقة
+            <h1 className="mt-8 max-w-4xl text-[2.75rem] leading-[1.05] sm:text-7xl sm:leading-[1.03] font-black tracking-tight text-foreground">
+              ادرس <span className="text-cyan-500">MBA</span> بعقلٍ عربي،
               <br />
-              تُناسب عقلك العربي.
+              <span className="text-muted">بأدواتٍ لا تجدها في مكانٍ آخر.</span>
             </h1>
 
-            {/* Subtitle */}
-            <p className="mx-auto mt-6 max-w-2xl text-center text-lg sm:text-xl text-muted leading-relaxed">
-              خمسة كتب أصلية، ثلاثة مستويات من الملخصات، آلاف الأسئلة،
-              وفلاش كاردز ذكية — كلها في منصة واحدة تعمل حتى بدون إنترنت.
+            <p className="mt-6 max-w-xl text-lg sm:text-xl text-muted leading-relaxed">
+              ثلاثة كتب أصلية كاملة، ملخصات بثلاثة مستويات، وآلاف الأسئلة والبطاقات
+              الذكية — في منصةٍ واحدةٍ تعمل حتى بلا إنترنت.
             </p>
 
-            {/* CTAs */}
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="mt-10 flex flex-wrap items-center gap-3">
               <Link
-                href="/books"
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-foreground text-background h-12 px-7 text-sm font-semibold shadow-card hover:shadow-glow transition-all duration-300"
+                href="/books/hr/1"
+                className="group inline-flex items-center gap-2 rounded-full bg-foreground text-background h-12 px-7 text-sm font-bold hover:opacity-90 transition-opacity"
               >
-                <span>ابدأ التعلم الآن</span>
+                جرّب الفصل المجاني
                 <ArrowLeft className="size-4 group-hover:-translate-x-0.5 transition-transform" />
               </Link>
-              <Link
-                href="/#features"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-card h-12 px-7 text-sm font-semibold text-foreground hover:bg-foreground/5 transition-colors"
+              <a
+                href={whatsappLink(
+                  "السلام عليكم، أرغب بالحصول على كود تفعيل لأكاديمية الغزاوي.",
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-border h-12 px-7 text-sm font-bold text-foreground hover:border-foreground/40 transition-colors"
               >
-                <span>اكتشف الميزات</span>
-              </Link>
+                <MessageCircle className="size-4" />
+                احصل على كود
+              </a>
             </div>
 
-            {/* Stats strip */}
-            <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl mx-auto">
-              {[
-                { label: "كتاب MBA", value: "5" },
-                { label: "فصل دراسي", value: "+60" },
-                { label: "سؤال تدريبي", value: "+1500" },
-                { label: "فلاش كارد", value: "+1500" },
-              ].map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className="text-3xl sm:text-4xl font-black bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-transparent">
-                    {stat.value}
+            {/* stats — ruled grid, not centered cards */}
+            <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-px overflow-hidden rounded-2xl border border-border/70 bg-border/70">
+              {STATS.map((s) => (
+                <div key={s.k} className="bg-background px-5 py-6">
+                  <div className="text-3xl sm:text-4xl font-black text-foreground tabular-nums">
+                    {s.v}
                   </div>
-                  <div className="mt-1 text-xs sm:text-sm text-muted font-medium">
-                    {stat.label}
-                  </div>
+                  <div className="mt-1.5 text-xs text-muted font-mono">{s.k}</div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* FEATURES */}
-        <section id="features" className="border-t border-border/60 py-20 sm:py-28">
+        {/* FEATURES — editorial numbered list */}
+        <section id="features" className="py-20 sm:py-28 border-b border-border/60">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-600 mb-3">
-                <Zap className="size-3.5" />
-                لماذا أكاديمية الغزاوي؟
-              </div>
-              <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
-                كل ما تحتاجه لإتقان MBA،
-                <br />
-                <span className="text-muted">في مكان واحد.</span>
+            <div className="flex items-end justify-between gap-6 mb-14 flex-wrap">
+              <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground max-w-lg leading-tight">
+                كل ما تحتاجه لإتقان MBA — في مكانٍ واحد.
               </h2>
+              <p className="text-xs text-muted font-mono tracking-widest">
+                ٦ أدوات / منصة واحدة
+              </p>
             </div>
-
-            <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {[
-                {
-                  icon: BookOpen,
-                  title: "كتب أصلية كاملة",
-                  desc: "اقرأ الكتب الخمسة الكاملة بصيغة PDF داخل المنصة، بدون تحميل أو خروج.",
-                },
-                {
-                  icon: FileText,
-                  title: "ملخصات بـ 3 مستويات",
-                  desc: "مكثف للمراجعة السريعة، عادي للفهم، ومفصّل للإتقان العميق.",
-                },
-                {
-                  icon: Target,
-                  title: "أسئلة متدرّجة",
-                  desc: "أكثر من 30 سؤالاً لكل فصل، مقسّمة على ثلاث مستويات صعوبة.",
-                },
-                {
-                  icon: Brain,
-                  title: "فلاش كاردز ذكية",
-                  desc: "مصطلحات عربية وإنجليزية مع التعريفات، بنظام تكرار متباعد.",
-                },
-                {
-                  icon: LayoutGrid,
-                  title: "تتبع تقدمك",
-                  desc: "لوحة معلومات تعرض ما أنجزته وما تبقى، بإحصائيات تفصيلية.",
-                },
-                {
-                  icon: Zap,
-                  title: "تعمل بدون إنترنت",
-                  desc: "PWA كاملة — ثبّت المنصة كتطبيق، وادرس في أي وقت ومكان.",
-                },
-              ].map(({ icon: Icon, title, desc }) => (
-                <div
-                  key={title}
-                  className="group relative rounded-2xl border border-border/60 bg-card p-6 shadow-soft hover:shadow-card hover:border-cyan-300/50 transition-all duration-300"
-                >
-                  <div className="inline-flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-royal-50 to-cyan-50 ring-1 ring-cyan-100 group-hover:scale-110 transition-transform">
-                    <Icon className="size-5 text-royal-700" />
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-10">
+              {FEATURES.map((f) => (
+                <div key={f.n} className="group border-t-2 border-border pt-5">
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-sm text-cyan-500">{f.n}</span>
+                    <span className="h-px flex-1 bg-transparent group-hover:bg-cyan-500/30 transition-colors" />
                   </div>
-                  <h3 className="mt-4 text-lg font-bold text-foreground">
-                    {title}
+                  <h3 className="mt-3 text-lg font-bold text-foreground">
+                    {f.title}
                   </h3>
                   <p className="mt-2 text-sm text-muted leading-relaxed">
-                    {desc}
+                    {f.desc}
                   </p>
                 </div>
               ))}
@@ -159,24 +144,24 @@ export default function HomePage() {
         </section>
 
         {/* BOOKS */}
-        <section className="border-t border-border/60 py-20 sm:py-28 bg-card/30">
+        <section className="py-20 sm:py-28 border-b border-border/60">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="flex items-end justify-between mb-12">
+            <div className="flex items-end justify-between mb-12 gap-4 flex-wrap">
               <div>
-                <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-600 mb-3">
-                  <BookOpen className="size-3.5" />
+                <div className="text-xs font-mono tracking-widest text-amber-600 mb-3">
                   المكتبة
                 </div>
                 <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
-                  خمسة كتب،<br />
-                  <span className="text-muted">منهج متكامل.</span>
+                  ثلاثة كتب متاحة،
+                  <br />
+                  <span className="text-muted">واثنان في الطريق.</span>
                 </h2>
               </div>
               <Link
                 href="/books"
-                className="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-foreground hover:text-cyan-600 transition-colors"
+                className="inline-flex items-center gap-1.5 text-sm font-mono text-muted hover:text-cyan-500 transition-colors"
               >
-                <span>عرض الكل</span>
+                عرض الكل
                 <ArrowLeft className="size-4" />
               </Link>
             </div>
@@ -186,43 +171,39 @@ export default function HomePage() {
                 <Link
                   key={book.slug}
                   href={book.status === "ready" ? `/books/${book.slug}` : "/books"}
-                  className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft hover:shadow-card transition-all duration-500"
+                  className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card p-6 hover:border-cyan-500/40 transition-colors"
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${book.color} opacity-[0.04] group-hover:opacity-[0.08] transition-opacity`} />
-
-                  <div className="relative p-6">
-                    <div className="flex items-start justify-between mb-8">
-                      <div className={`size-12 rounded-xl bg-gradient-to-br ${book.color} flex items-center justify-center text-white font-black text-lg shadow-soft`}>
-                        {String(idx + 1).padStart(2, "0")}
-                      </div>
-                      {book.status === "ready" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 px-2.5 py-0.5 text-[10px] font-bold ring-1 ring-emerald-200">
-                          <span className="size-1.5 rounded-full bg-emerald-500" />
-                          متاح الآن
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center rounded-full bg-amber-50 text-amber-700 px-2.5 py-0.5 text-[10px] font-bold ring-1 ring-amber-200">
-                          قريباً
-                        </span>
-                      )}
-                    </div>
-
-                    <h3 className="text-xl font-bold text-foreground leading-tight">
-                      {book.title_ar}
-                    </h3>
-                    <p className="mt-1 text-sm text-muted font-medium" dir="ltr">
-                      {book.title_en}
-                    </p>
-
-                    <div className="mt-6 pt-4 border-t border-border/40 flex items-center justify-between text-xs">
-                      <span className="text-muted">
-                        {book.chapters > 0 ? `${book.chapters} فصلاً` : "محتوى قيد الإعداد"}
+                  <div className="flex items-start justify-between mb-10">
+                    <span className="font-mono text-2xl font-black text-muted/50 group-hover:text-cyan-500/70 transition-colors">
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
+                    {book.status === "ready" ? (
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-cyan-400 font-mono">
+                        <span className="size-1.5 rounded-full bg-cyan-400" />
+                        متاح
                       </span>
-                      <span className="inline-flex items-center gap-1 text-foreground font-semibold opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all">
-                        ادخل
-                        <ArrowLeft className="size-3.5" />
+                    ) : (
+                      <span className="text-[11px] font-bold text-muted font-mono">
+                        قريباً
                       </span>
-                    </div>
+                    )}
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground leading-tight">
+                    {book.title_ar}
+                  </h3>
+                  <p className="mt-1 text-sm text-muted font-mono" dir="ltr">
+                    {book.title_en}
+                  </p>
+                  <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between text-xs">
+                    <span className="text-muted">
+                      {book.chapters > 0
+                        ? `${book.chapters} فصلاً`
+                        : "قيد الإعداد"}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-foreground font-semibold opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all">
+                      ادخل
+                      <ArrowLeft className="size-3.5" />
+                    </span>
                   </div>
                 </Link>
               ))}
@@ -230,23 +211,68 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* CUSTOM CURRICULUM PROMO */}
+        <section className="py-20 sm:py-28 border-b border-border/60">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="relative overflow-hidden rounded-3xl border border-amber-200/70 bg-gradient-to-br from-cyan-50 via-card to-amber-50/60 p-8 sm:p-12">
+              <div className="pointer-events-none absolute top-0 end-0 size-72 bg-amber-200/30 rounded-full blur-3xl -translate-y-1/3 translate-x-1/3" />
+              <div className="relative sm:flex items-center justify-between gap-8">
+                <div className="max-w-xl">
+                  <div className="text-xs font-mono tracking-widest text-amber-600 mb-4">
+                    خدمة مجانية
+                  </div>
+                  <h2 className="text-3xl sm:text-4xl font-black leading-tight text-foreground">
+                    عندك منهجٌ آخر؟ نُعدّه لك مجاناً.
+                  </h2>
+                  <p className="mt-3 text-muted leading-relaxed">
+                    أرسل اسم منهجك وكتبه، وبعد فحصها نحوّلها إلى فصولٍ وملخصاتٍ ذكية
+                    وآلاف الأسئلة — بتجربة أكاديمية الغزاوي نفسها.
+                  </p>
+                </div>
+                <Link
+                  href="/custom-curriculum"
+                  className="mt-6 sm:mt-0 inline-flex shrink-0 items-center gap-2 rounded-full bg-foreground text-background h-12 px-7 text-sm font-bold hover:bg-cyan-500 hover:text-navy transition-colors"
+                >
+                  اطلب منهجك
+                  <ArrowLeft className="size-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* CTA */}
-        <section className="border-t border-border/60 py-20 sm:py-28">
-          <div className="mx-auto max-w-3xl px-4 sm:px-6 text-center">
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
-              جاهز لتبدأ رحلتك في MBA؟
-            </h2>
-            <p className="mt-5 text-lg text-muted leading-relaxed">
-              المنصة مجانية بالكامل في هذه المرحلة. ابدأ بكتاب الموارد البشرية المتاح الآن.
+        <section className="py-24 sm:py-32">
+          <div className="mx-auto max-w-3xl px-4 sm:px-6">
+            <p className="text-xs font-mono tracking-widest text-amber-600 mb-5">
+              ابدأ الآن
             </p>
-            <div className="mt-10">
+            <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-foreground leading-[1.05]">
+              جرّب قبل أن تشترك.
+            </h2>
+            <p className="mt-5 text-lg text-muted leading-relaxed max-w-xl">
+              الفصل الأول من إدارة الموارد البشرية متاحٌ مجاناً بالكامل — جرّبه
+              الآن، ثم فعّل بقية الكتب والفصول بكود تفعيل.
+            </p>
+            <div className="mt-10 flex flex-wrap items-center gap-3">
               <Link
-                href="/books/hr"
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-foreground text-background h-12 px-7 text-sm font-semibold shadow-card hover:shadow-glow transition-all duration-300"
+                href="/books/hr/1"
+                className="group inline-flex items-center gap-2 rounded-full bg-foreground text-background h-12 px-7 text-sm font-bold hover:opacity-90 transition-opacity"
               >
-                <span>ابدأ بإدارة الموارد البشرية</span>
+                جرّب الفصل المجاني
                 <ArrowLeft className="size-4 group-hover:-translate-x-0.5 transition-transform" />
               </Link>
+              <a
+                href={whatsappLink(
+                  "السلام عليكم، أرغب بالحصول على كود تفعيل لأكاديمية الغزاوي.",
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-border h-12 px-7 text-sm font-bold text-foreground hover:border-foreground/40 transition-colors"
+              >
+                <MessageCircle className="size-4" />
+                احصل على كود
+              </a>
             </div>
           </div>
         </section>

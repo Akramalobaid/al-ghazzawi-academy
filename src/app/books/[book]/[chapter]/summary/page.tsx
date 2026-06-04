@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, BookOpen, FileText, Layers } from "lucide-react"
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { SummaryViewer } from "@/components/summary-viewer";
+import { AccessGate } from "@/components/access-gate";
 import { getBook, bookSlugs, getChapterFromBook } from "@/lib/books";
 
 export function generateStaticParams() {
@@ -75,7 +76,9 @@ export default async function SummaryPage({
             </div>
           </div>
 
-          <SummaryViewer summary={ch.summary} chapterNum={ch.num} bookSlug={book} />
+          <AccessGate bookSlug={book} chapterNum={ch.num} whatLocked="هذا الملخص">
+            <SummaryViewer summary={ch.summary} chapterNum={ch.num} bookSlug={book} />
+          </AccessGate>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">

@@ -3,7 +3,7 @@
 -- ============================================================================
 -- كيفية الاستخدام:
 --   1) افتح مشروعك على Supabase → SQL Editor → New query
---   2) الصق كامل هذا الملف واضغط Run
+--   2) الصق كامل هذا الملف واضغط Run (آمن لإعادة التشغيل — idempotent)
 --   3) خُذ من Project Settings → API:  Project URL  و  service_role key
 --      وضعهما في ملف .env.local (انظر .env.example)
 -- ============================================================================
@@ -14,10 +14,15 @@ create table if not exists public.access_codes (
   assigned_to  text,                              -- اسم الطالب (يُضبط عند أول تفعيل)
   max_devices  int  not null default 2,           -- الحدّ الأقصى لعدد الأجهزة (تتحكّم به)
   devices      jsonb not null default '[]'::jsonb,-- الأجهزة المسجّلة [{id, at}]
+  can_print    boolean not null default false,    -- هل يُسمح لهذا الكود بالطباعة؟ (تتحكّم به من /admin)
   used_at      timestamptz,                       -- وقت أول تفعيل
   created_at   timestamptz not null default now(),
   note         text                               -- ملاحظتك (اسم/بريد المشتري)
 );
+
+-- ترقية آمنة للجداول القائمة (إضافة عمود الطباعة إن لم يكن موجوداً).
+alter table public.access_codes
+  add column if not exists can_print boolean not null default false;
 
 -- تفعيل RLS بلا أي policy: يمنع كل وصول عام (anon/authenticated) للجدول.
 -- الوصول يتمّ حصراً عبر دالة claim_code المُناداة من الخادم بمفتاح service_role.
@@ -25,7 +30,7 @@ alter table public.access_codes enable row level security;
 
 -- الدالة الذرّية للمطالبة بالكود ----------------------------------------------
 -- تتحقق من: وجود الكود، تطابق الاسم (لشخص واحد)، حدّ الأجهزة. وتسجّل الجهاز.
--- ترجع jsonb: { ok: boolean, reason: 'ok'|'invalid'|'used_by_other'|'device_limit' }
+-- ترجع jsonb: { ok, reason, can_print } حيث reason ∈ ok|invalid|used_by_other|device_limit
 create or replace function public.claim_code(
   p_code   text,
   p_name   text,
@@ -66,7 +71,7 @@ begin
     update public.access_codes
       set assigned_to = coalesce(assigned_to, trim(p_name))
       where code = rec.code;
-    return jsonb_build_object('ok', true, 'reason', 'ok');
+    return jsonb_build_object('ok', true, 'reason', 'ok', 'can_print', coalesce(rec.can_print, false));
   end if;
 
   -- جهاز جديد: تحقّق من الحدّ.
@@ -82,7 +87,7 @@ begin
         used_at     = coalesce(used_at, now())
     where code = rec.code;
 
-  return jsonb_build_object('ok', true, 'reason', 'ok');
+  return jsonb_build_object('ok', true, 'reason', 'ok', 'can_print', coalesce(rec.can_print, false));
 end;
 $$;
 
@@ -90,6 +95,6 @@ $$;
 revoke all on function public.claim_code(text, text, text) from public, anon, authenticated;
 grant execute on function public.claim_code(text, text, text) to service_role;
 
--- صلاحية service_role على الجدول (للإدراج/القراءة من السكربت والخادم).
+-- صلاحية service_role على الجدول (للإدراج/القراءة/التحديث من السكربت والخادم ولوحة /admin).
 -- لازمة لأن "expose new tables" مُعطّل، فلا تُمنح الجداول الجديدة تلقائياً.
 grant all on table public.access_codes to service_role;

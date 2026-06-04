@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Tajawal, Inter } from "next/font/google";
+import { Tajawal, Inter, El_Messiri } from "next/font/google";
 import { SITE } from "@/lib/site";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AchievementWatcher } from "@/components/achievement-watcher";
@@ -15,6 +15,15 @@ const tajawal = Tajawal({
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+});
+
+// Distinctive Arabic display face for headings — gives the "crafted editorial"
+// character that flat sans-everywhere (the AI-template look) lacks.
+const elMessiri = El_Messiri({
+  variable: "--font-display-ar",
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -69,7 +78,7 @@ export default function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={`${tajawal.variable} ${inter.variable} antialiased`}
+      className={`${tajawal.variable} ${inter.variable} ${elMessiri.variable} antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-background text-foreground">

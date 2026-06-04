@@ -5,6 +5,7 @@ import { ArrowRight, BookOpen } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { getBook, bookSlugs } from "@/lib/books";
+import { AccessGate } from "@/components/access-gate";
 import { ReaderWrapper } from "./reader-wrapper";
 
 export function generateStaticParams() {
@@ -73,16 +74,18 @@ export default async function BookReadPage({
           </div>
         </header>
 
-        <ReaderWrapper
-          file={`/books/${book}.pdf`}
-          bookSlug={book}
-          title={b.title_ar}
-        />
+        <AccessGate bookSlug={book} chapterNum={0} whatLocked="القراءة الكاملة للكتاب">
+          <ReaderWrapper
+            file={`/books/${book}.pdf`}
+            bookSlug={book}
+            title={b.title_ar}
+          />
 
-        <div className="mt-4 text-center text-xs text-muted">
-          نصيحة: استخدم أسهم لوحة المفاتيح للتنقل بين الصفحات • يُحفظ آخر موضع
-          قراءتك تلقائياً
-        </div>
+          <div className="mt-4 text-center text-xs text-muted">
+            نصيحة: استخدم أسهم لوحة المفاتيح للتنقل بين الصفحات • يُحفظ آخر موضع
+            قراءتك تلقائياً
+          </div>
+        </AccessGate>
       </main>
       <Footer />
     </>

@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { SearchClient } from "@/components/search-client";
+import { AccessGate } from "@/components/access-gate";
 
 export const metadata = {
   title: "البحث الشامل · أكاديمية الغزاوي",
@@ -39,9 +40,11 @@ export default function SearchPage() {
           </div>
         </div>
 
-        <Suspense fallback={<SearchFallback />}>
-          <SearchClient />
-        </Suspense>
+        <AccessGate bookSlug="" chapterNum={0} whatLocked="البحث الشامل">
+          <Suspense fallback={<SearchFallback />}>
+            <SearchClient />
+          </Suspense>
+        </AccessGate>
       </main>
       <Footer />
     </>

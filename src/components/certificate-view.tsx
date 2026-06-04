@@ -3,8 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Award, Download, Pencil, Printer, ArrowLeft } from "lucide-react";
+import { Award, Download, Pencil, Printer, ArrowLeft, Lock } from "lucide-react";
 import { setPreference, usePreferences } from "@/lib/use-db";
+import { useAccess } from "@/lib/access";
+import { whatsappLink } from "@/lib/site";
+import { PrintWatermark } from "./print-watermark";
 import {
   buildCertificateId,
   getBookForCertificate,
@@ -16,6 +19,7 @@ export function CertificateView() {
   const params = useSearchParams();
   const bookSlug = params.get("book") ?? "hr";
   const prefs = usePreferences();
+  const { canPrint } = useAccess();
 
   const [name, setName] = useState<string>("");
   const [editing, setEditing] = useState(false);
@@ -58,6 +62,7 @@ export function CertificateView() {
 
   return (
     <div className="space-y-6">
+      <PrintWatermark />
       {/* Top controls — hidden when printing */}
       <div className="flex items-center justify-between gap-3 flex-wrap print:hidden">
         <Link
@@ -77,14 +82,28 @@ export function CertificateView() {
               تعديل الاسم
             </button>
           )}
-          <button
-            onClick={() => window.print()}
-            disabled={!name}
-            className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background px-4 py-2 text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
-          >
-            <Printer className="size-4" />
-            طباعة / حفظ PDF
-          </button>
+          {canPrint ? (
+            <button
+              onClick={() => window.print()}
+              disabled={!name}
+              className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background px-4 py-2 text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+            >
+              <Printer className="size-4" />
+              طباعة / حفظ PDF
+            </button>
+          ) : (
+            <a
+              href={whatsappLink(
+                "السلام عليكم، أرغب بتفعيل الطباعة لحسابي في أكاديمية الغزاوي.",
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-700 px-4 py-2 text-sm font-bold hover:bg-amber-100 transition-colors"
+            >
+              <Lock className="size-4" />
+              الطباعة بإذن — فعّلها عبر واتساب
+            </a>
+          )}
         </div>
       </div>
 

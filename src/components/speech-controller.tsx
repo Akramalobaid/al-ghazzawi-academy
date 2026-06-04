@@ -6,6 +6,12 @@ import { Pause, Play, Square, Volume2 } from "lucide-react";
 interface Props {
   /** the raw HTML to read — tags are stripped automatically */
   html: string;
+  /**
+   * Optional pre-generated professional MP3 (e.g. /audio/hr/1-detailed.mp3).
+   * If present it is played instead of the (weaker) browser voice; if missing
+   * (404) we fall back to Web Speech automatically.
+   */
+  audioSrc?: string;
 }
 
 const RATES = [0.8, 1.0, 1.25, 1.5] as const;
@@ -26,80 +32,143 @@ function htmlToSpeech(html: string): string {
     .trim();
 }
 
-export function SpeechController({ html }: Props) {
+/** Pick the best available Arabic voice, preferring natural/neural ones. */
+function pickArabicVoice(
+  voices: SpeechSynthesisVoice[],
+): SpeechSynthesisVoice | undefined {
+  const ar = voices.filter(
+    (v) =>
+      (v.lang || "").toLowerCase().startsWith("ar") ||
+      /arabic|عرب/i.test(v.name || ""),
+  );
+  if (!ar.length) return undefined;
+  const prefer =
+    /natural|neural|online|multilingual|hamed|salma|naayf|zariyah|hala|zeina|google/i;
+  return ar.find((v) => prefer.test(v.name)) ?? ar[0];
+}
+
+export function SpeechController({ html, audioSrc }: Props) {
   const [supported, setSupported] = useState(true);
   const [status, setStatus] = useState<"idle" | "playing" | "paused">("idle");
   const [rate, setRate] = useState<number>(1.0);
-  const utterRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const modeRef = useRef<"audio" | "speech">("speech");
 
+  // Load voices (async — they often aren't ready on first paint).
   useEffect(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) {
       setSupported(false);
+      return;
     }
+    const load = () => setVoices(window.speechSynthesis.getVoices());
+    load();
+    window.speechSynthesis.addEventListener("voiceschanged", load);
+    return () =>
+      window.speechSynthesis.removeEventListener("voiceschanged", load);
   }, []);
 
-  // Stop speech if the component unmounts (e.g., user navigates away).
-  useEffect(() => {
-    return () => {
+  // Stop everything if the component unmounts.
+  useEffect(
+    () => () => {
       if (typeof window !== "undefined" && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
-    };
-  }, []);
+      audioRef.current?.pause();
+    },
+    [],
+  );
 
-  // Re-apply rate to an in-flight utterance by restarting it (Web Speech API
-  // doesn't allow changing rate on a live utterance).
-  function changeRate(next: number) {
-    setRate(next);
-    if (status === "playing") {
-      window.speechSynthesis.cancel();
-      setTimeout(() => play(next), 50);
+  async function audioExists(src: string): Promise<boolean> {
+    try {
+      const r = await fetch(src, { method: "HEAD" });
+      return r.ok && (r.headers.get("content-type")?.includes("audio") ?? true);
+    } catch {
+      return false;
     }
   }
 
-  function play(useRate = rate) {
-    if (!supported) return;
+  function speak(useRate: number) {
+    if (!window.speechSynthesis) return;
     const text = htmlToSpeech(html);
     if (!text) return;
     window.speechSynthesis.cancel();
-
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = "ar-SA";
     utter.rate = useRate;
+    const v = pickArabicVoice(voices);
+    if (v) utter.voice = v;
     utter.onend = () => setStatus("idle");
     utter.onerror = () => setStatus("idle");
-
-    // Try to pick an Arabic voice if available
-    const voices = window.speechSynthesis.getVoices();
-    const ar =
-      voices.find((v) => v.lang.startsWith("ar")) ||
-      voices.find((v) => /arabic/i.test(v.name));
-    if (ar) utter.voice = ar;
-
-    utterRef.current = utter;
     window.speechSynthesis.speak(utter);
     setStatus("playing");
   }
 
+  function playAudio(useRate: number) {
+    let a = audioRef.current;
+    if (!a || a.src.indexOf(audioSrc ?? "") === -1) {
+      a = new Audio(audioSrc);
+      audioRef.current = a;
+      a.onended = () => setStatus("idle");
+      a.onerror = () => {
+        modeRef.current = "speech";
+        speak(useRate);
+      };
+    }
+    a.playbackRate = useRate;
+    a.play()
+      .then(() => setStatus("playing"))
+      .catch(() => {
+        modeRef.current = "speech";
+        speak(useRate);
+      });
+  }
+
+  async function play(useRate = rate) {
+    if (audioSrc && (await audioExists(audioSrc))) {
+      modeRef.current = "audio";
+      playAudio(useRate);
+    } else {
+      modeRef.current = "speech";
+      speak(useRate);
+    }
+  }
+
+  function changeRate(next: number) {
+    setRate(next);
+    if (status !== "playing") return;
+    if (modeRef.current === "audio" && audioRef.current) {
+      audioRef.current.playbackRate = next;
+    } else {
+      window.speechSynthesis.cancel();
+      setTimeout(() => speak(next), 50);
+    }
+  }
+
   function pause() {
-    if (!supported) return;
-    window.speechSynthesis.pause();
+    if (modeRef.current === "audio") audioRef.current?.pause();
+    else window.speechSynthesis?.pause();
     setStatus("paused");
   }
 
   function resume() {
-    if (!supported) return;
-    window.speechSynthesis.resume();
+    if (modeRef.current === "audio") void audioRef.current?.play();
+    else window.speechSynthesis?.resume();
     setStatus("playing");
   }
 
   function stop() {
-    if (!supported) return;
-    window.speechSynthesis.cancel();
+    if (modeRef.current === "audio" && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
     setStatus("idle");
   }
 
-  if (!supported) return null;
+  if (!supported && !audioSrc) return null;
 
   return (
     <div className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-card p-1">

@@ -1,49 +1,51 @@
 "use client";
 
 /**
- * Access control — local-first (Phase 1).
+ * Access control — local-first deterrent (Phase 1) + central code ledger (Phase 2).
  *
- * A registered student may BROWSE everything (summaries, PDF, mind-maps) but may
- * only INTERACT (quiz, flashcards, notes, progress) with the free *trial chapter*
- * of each book — unless they redeem an activation code to unlock "full" access.
+ * Model: a visitor without a code may fully use ONLY the free sample — chapter 1
+ * of the first book (HR): reading, quiz, flashcards, notes, progress. EVERYTHING
+ * else (other chapters, other books, the full-PDF reader) is locked until the
+ * student redeems an activation code ("full") or the owner enters the owner code
+ * ("owner").
  *
- * ⚠️ Phase 1 verifies codes locally (a "red ribbon" deterrent). Phase 2 replaces
- * the body of `verifyCode` with a POST to /api/activate backed by Supabase, for
- * true single-use, per-person, device-limited codes. Keep ALL backend-facing
- * logic behind this module so the upgrade only touches `verifyCode`.
+ * One predicate — `canAccess` — governs BOTH reading and interaction so the lock
+ * is uniform across the app. Printing is a separate permission: owner always;
+ * full only if the owner enabled `canPrint` for that code; trial never.
  */
 import { useLiveQuery } from "dexie-react-hooks";
 import { getDB } from "./db";
 
-export type AccessTier = "trial" | "full";
+export type AccessTier = "trial" | "full" | "owner";
 
 /**
- * Free trial chapter per book — يحدّده صاحب المنصة.
- * غيّر الرقم هنا لتغيير الفصل المجاني لأي كتاب.
+ * The single free sample: chapter 1 of the first book (HR). يحدّده صاحب المنصة.
+ * غيّر القيمة هنا لفتح فصل/كتاب آخر مجاناً.
  */
-const TRIAL_CHAPTERS: Record<string, number> = {
-  hr: 1,
-  marketing: 1,
-  management: 1,
-};
+export const FREE_SAMPLE = { book: "hr", chapter: 1 } as const;
 
-export function trialChapterFor(bookSlug: string): number {
-  return TRIAL_CHAPTERS[bookSlug] ?? 1;
+/** Direct path to the free sample chapter overview. */
+export const FREE_SAMPLE_PATH = `/books/${FREE_SAMPLE.book}/${FREE_SAMPLE.chapter}`;
+
+/** Is this the free sample — the only chapter a trial visitor may use? */
+export function isFreeSample(bookSlug: string, chapterNum: number): boolean {
+  return bookSlug === FREE_SAMPLE.book && chapterNum === FREE_SAMPLE.chapter;
 }
 
-/** Is this the book's free trial chapter? */
-export function isTrialChapter(bookSlug: string, chapterNum: number): boolean {
-  return chapterNum === trialChapterFor(bookSlug);
-}
-
-/** Can the student interact with (not just read) this chapter? */
-export function canInteract(
+/**
+ * Unified access check governing BOTH reading and interaction.
+ * full/owner → everything; trial → only the free sample chapter.
+ */
+export function canAccess(
   bookSlug: string,
   chapterNum: number,
   tier: AccessTier,
 ): boolean {
-  return tier === "full" || isTrialChapter(bookSlug, chapterNum);
+  return tier !== "trial" || isFreeSample(bookSlug, chapterNum);
 }
+
+/** Back-compat alias: interaction now follows the exact same rule as reading. */
+export const canInteract = canAccess;
 
 // =====================
 // Device identity
@@ -76,6 +78,13 @@ export interface AccessState {
   registered: boolean;
   studentName: string;
   tier: AccessTier;
+  /** may this account print? (owner ⇒ always; full ⇒ if enabled; trial ⇒ never) */
+  canPrint: boolean;
+}
+
+/** Map a persisted value to a known tier (defaults to "trial"). */
+function normalizeTier(value: unknown): AccessTier {
+  return value === "owner" ? "owner" : value === "full" ? "full" : "trial";
 }
 
 export function useAccess(): AccessState {
@@ -87,11 +96,13 @@ export function useAccess(): AccessState {
   );
   const loading = prefs === undefined;
   const studentName = prefs?.studentName?.trim() ?? "";
+  const tier = normalizeTier(prefs?.accessTier);
   return {
     loading,
     registered: studentName.length > 0,
     studentName,
-    tier: prefs?.accessTier === "full" ? "full" : "trial",
+    tier,
+    canPrint: tier === "owner" || (tier === "full" && prefs?.canPrint === true),
   };
 }
 
@@ -99,7 +110,7 @@ export function useAccess(): AccessState {
 // Mutations
 // =====================
 
-/** Register (or update) the student's name; keeps "full" tier if already unlocked. */
+/** Register (or update) the student's name; preserves any unlocked tier. */
 export async function registerStudent(name: string): Promise<void> {
   try {
     const db = getDB();
@@ -108,7 +119,7 @@ export async function registerStudent(name: string): Promise<void> {
     await db.preferences.put({
       ...existing,
       studentName: name.trim(),
-      accessTier: existing.accessTier === "full" ? "full" : "trial",
+      accessTier: normalizeTier(existing.accessTier),
     });
   } catch (err) {
     console.warn("[access] registerStudent failed", err);
@@ -122,15 +133,16 @@ export type ActivationReason =
   | "network";
 
 export type ActivationResult =
-  | { ok: true }
+  | { ok: true; owner?: boolean; canPrint?: boolean }
   | { ok: false; reason: ActivationReason };
 
 /**
  * Verify an activation code against the central ledger (Phase 2).
  *
  * Calls our own /api/activate route (same origin), which holds the Supabase
- * service-role key server-side and runs the atomic `claim_code` RPC. The browser
- * never talks to Supabase directly. Maps the server's reason to ActivationReason.
+ * service-role key server-side and runs the atomic `claim_code` RPC (and a
+ * short-circuit for the owner master code). The browser never talks to Supabase
+ * directly. Maps the server's reason to ActivationReason.
  */
 async function verifyCode(
   code: string,
@@ -143,12 +155,14 @@ async function verifyCode(
     body: JSON.stringify({ code, name, deviceId }),
   });
   const data = (await res.json().catch(() => null)) as
-    | { ok?: boolean; reason?: string }
+    | { ok?: boolean; reason?: string; owner?: boolean; can_print?: boolean }
     | null;
   if (!data || typeof data.ok !== "boolean") {
     return { ok: false, reason: "network" };
   }
-  if (data.ok) return { ok: true };
+  if (data.ok) {
+    return { ok: true, owner: !!data.owner, canPrint: !!data.can_print };
+  }
   const reason: ActivationReason =
     data.reason === "invalid" ||
     data.reason === "used_by_other" ||
@@ -159,7 +173,9 @@ async function verifyCode(
 }
 
 /**
- * Redeem a code and, on success, unlock full access locally + persist the name.
+ * Redeem a code and, on success, unlock access locally + persist the name.
+ * Owner code → "owner" tier (print always on); otherwise → "full" tier with the
+ * print permission the owner set for that code.
  */
 export async function activate(
   code: string,
@@ -181,12 +197,13 @@ export async function activate(
     await db.preferences.put({
       ...existing,
       studentName: name.trim() || existing.studentName,
-      accessTier: "full",
+      accessTier: result.owner ? "owner" : "full",
+      canPrint: result.owner ? true : !!result.canPrint,
       activationCode: code.trim().toUpperCase(),
       unlockedAt: Date.now(),
     });
   } catch (err) {
     console.warn("[access] activate persist failed", err);
   }
-  return { ok: true };
+  return result;
 }
