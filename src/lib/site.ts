@@ -62,8 +62,8 @@ export const BOOKS = [
     slug: "economics",
     title_ar: "الاقتصاد الإداري",
     title_en: "Managerial Economics",
-    chapters: 0,
-    status: "coming",
+    chapters: 13,
+    status: "ready",
     color: "from-emerald-500 to-teal-500",
   },
   {
