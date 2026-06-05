@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { getDB, logStudySession } from "@/lib/db";
 import type { GeneratedQuestion } from "@/lib/quiz-generator";
+import { choiceOrder } from "@/lib/quiz-shuffle";
 
 interface Props {
   questions: GeneratedQuestion[];
@@ -43,6 +44,20 @@ export function CustomQuizRunner({ questions, bookSlug, onRestartConfig }: Props
         0,
       ),
     [answers, questions],
+  );
+
+  // Per-question display permutation: order[displayPos] = originalIndex.
+  // Seeded (not Math.random) so it stays fixed across re-renders, navigation,
+  // and SSR hydration. All answer indices below stay in original space.
+  const displayOrders = useMemo(
+    () =>
+      questions.map((q) =>
+        choiceOrder(
+          q.choices.length,
+          `${bookSlug}#${q.chapterNum}#${q.originalIndex}#${q.question}`,
+        ),
+      ),
+    [questions, bookSlug],
   );
 
   function choose(i: number) {
@@ -242,9 +257,10 @@ export function CustomQuizRunner({ questions, bookSlug, onRestartConfig }: Props
       </h2>
 
       <div className="mt-6 space-y-2.5">
-        {current.choices.map((choice, i) => {
-          const isThis = selected === i;
-          const isRight = current.answer === i;
+        {displayOrders[index].map((originalIdx, displayPos) => {
+          const choice = current.choices[originalIdx];
+          const isThis = selected === originalIdx;
+          const isRight = current.answer === originalIdx;
           let cls =
             "w-full text-start rounded-xl border-2 px-4 py-3.5 text-sm sm:text-[15px] font-medium transition-all flex items-start gap-3";
 
@@ -261,8 +277,8 @@ export function CustomQuizRunner({ questions, bookSlug, onRestartConfig }: Props
 
           return (
             <button
-              key={i}
-              onClick={() => choose(i)}
+              key={originalIdx}
+              onClick={() => choose(originalIdx)}
               disabled={isAnswered}
               className={cls}
             >
@@ -275,7 +291,7 @@ export function CustomQuizRunner({ questions, bookSlug, onRestartConfig }: Props
                     : "bg-border/80 text-muted"
                 }`}
               >
-                {String.fromCharCode(1571 + i)}
+                {String.fromCharCode(1571 + displayPos)}
               </span>
               <span className="flex-1">{choice}</span>
               {isAnswered && isRight && (

@@ -14,6 +14,7 @@ import {
 import type { QuizItem } from "@/content/hr/types";
 import { getDB, logStudySession, upsertChapterProgress } from "@/lib/db";
 import { useChapterQuizAttempts } from "@/lib/use-db";
+import { choiceOrder } from "@/lib/quiz-shuffle";
 
 interface QuizRunnerProps {
   questions: QuizItem[];
@@ -53,6 +54,20 @@ export function QuizRunner({
         0
       ),
     [answers, questions]
+  );
+
+  // Per-question display permutation: order[displayPos] = originalIndex.
+  // Seeded (not Math.random) so it stays fixed across re-renders, navigation,
+  // and SSR hydration. All answer indices below stay in original space.
+  const displayOrders = useMemo(
+    () =>
+      questions.map((q, i) =>
+        choiceOrder(
+          q.choices.length,
+          `${bookSlug}#${chapterNum}#${i}#${q.question}`,
+        ),
+      ),
+    [questions, bookSlug, chapterNum]
   );
 
   function choose(i: number) {
@@ -273,9 +288,10 @@ export function QuizRunner({
       </h2>
 
       <div className="mt-6 space-y-2.5">
-        {current.choices.map((choice, i) => {
-          const isThis = selected === i;
-          const isRight = current.answer === i;
+        {displayOrders[index].map((originalIdx, displayPos) => {
+          const choice = current.choices[originalIdx];
+          const isThis = selected === originalIdx;
+          const isRight = current.answer === originalIdx;
           let cls =
             "w-full text-start rounded-xl border-2 px-4 py-3.5 text-sm sm:text-[15px] font-medium transition-all flex items-start gap-3";
 
@@ -292,8 +308,8 @@ export function QuizRunner({
 
           return (
             <button
-              key={i}
-              onClick={() => choose(i)}
+              key={originalIdx}
+              onClick={() => choose(originalIdx)}
               disabled={isAnswered}
               className={cls}
             >
@@ -306,7 +322,7 @@ export function QuizRunner({
                     : "bg-border/80 text-muted"
                 }`}
               >
-                {String.fromCharCode(1571 + i)}
+                {String.fromCharCode(1571 + displayPos)}
               </span>
               <span className="flex-1">{choice}</span>
               {isAnswered && isRight && (
