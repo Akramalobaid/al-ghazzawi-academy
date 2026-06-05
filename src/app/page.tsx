@@ -1,10 +1,29 @@
 import Link from "next/link";
-import { ArrowLeft, MessageCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Briefcase,
+  Cog,
+  Cpu,
+  FlaskConical,
+  MessageCircle,
+  Scale,
+  Stethoscope,
+  type LucideIcon,
+} from "lucide-react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { LogoMark } from "@/components/logo";
 import { TodayBanner } from "@/components/today-banner";
-import { BOOKS, whatsappLink } from "@/lib/site";
+import { BOOKS, SPECIALIZATIONS, whatsappLink } from "@/lib/site";
+
+const SPEC_ICONS: Record<string, LucideIcon> = {
+  briefcase: Briefcase,
+  stethoscope: Stethoscope,
+  cog: Cog,
+  scale: Scale,
+  cpu: Cpu,
+  flask: FlaskConical,
+};
 
 const FEATURES = [
   {
@@ -64,18 +83,19 @@ export default function HomePage() {
           <div className="relative rise-in mx-auto max-w-6xl px-4 sm:px-6 pt-20 pb-20 sm:pt-28 sm:pb-24">
             <div className="flex items-center gap-3 text-xs font-mono tracking-widest text-amber-600">
               <span className="h-px w-10 bg-cyan-500/50" />
-              MBA · بالعربية · إصدار تجريبي
+              تخصصات جامعية · بالعربية
             </div>
 
             <h1 className="mt-8 max-w-4xl text-[2.75rem] leading-[1.05] sm:text-7xl sm:leading-[1.03] font-black tracking-tight text-foreground">
-              ادرس <span className="text-cyan-500">MBA</span> بعقلٍ عربي،
+              أتقِن <span className="text-cyan-500">تخصصك</span> بعقلٍ عربي،
               <br />
               <span className="text-muted">بأدواتٍ لا تجدها في مكانٍ آخر.</span>
             </h1>
 
             <p className="mt-6 max-w-xl text-lg sm:text-xl text-muted leading-relaxed">
-              ثلاثة كتب أصلية كاملة، ملخصات بثلاثة مستويات، وآلاف الأسئلة والبطاقات
-              الذكية — في منصةٍ واحدةٍ تعمل حتى بلا إنترنت.
+              كتب أصلية كاملة، ملخصات بثلاثة مستويات، وآلاف الأسئلة والبطاقات
+              الذكية — في منصةٍ واحدةٍ تعمل حتى بلا إنترنت. نبدأ بإدارة الأعمال،
+              ونتوسّع نحو كل التخصصات الجامعية.
             </p>
 
             <div className="mt-10 flex flex-wrap items-center gap-3">
@@ -118,7 +138,7 @@ export default function HomePage() {
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="flex items-end justify-between gap-6 mb-14 flex-wrap">
               <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground max-w-lg leading-tight">
-                كل ما تحتاجه لإتقان MBA — في مكانٍ واحد.
+                كل ما تحتاجه لإتقان تخصصك — في مكانٍ واحد.
               </h2>
               <p className="text-xs text-muted font-mono tracking-widest">
                 ٦ أدوات / منصة واحدة
@@ -143,13 +163,92 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* SPECIALIZATIONS */}
+        <section className="py-20 sm:py-28 border-b border-border/60">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="mb-12">
+              <div className="text-xs font-mono tracking-widest text-amber-600 mb-3">
+                التخصصات
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
+                منصةٌ لكل تخصص،
+                <br />
+                <span className="text-muted">نبدأ بإدارة الأعمال.</span>
+              </h2>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {SPECIALIZATIONS.map((s) => {
+                const Icon = SPEC_ICONS[s.icon];
+                const inner = (
+                  <>
+                    <div className="flex items-start justify-between mb-10">
+                      <span className="inline-flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-royal-50 to-cyan-50 ring-1 ring-cyan-100 text-royal-700">
+                        <Icon className="size-5" />
+                      </span>
+                      {s.status === "ready" ? (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-cyan-500 font-mono">
+                          <span className="size-1.5 rounded-full bg-cyan-400" />
+                          متاح
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-bold text-muted font-mono">
+                          قريباً
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-xl font-bold text-foreground leading-tight">
+                      {s.title_ar}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted font-mono" dir="ltr">
+                      {s.title_en}
+                    </p>
+                  </>
+                );
+                return s.status === "ready" ? (
+                  <Link
+                    key={s.slug}
+                    href={s.href}
+                    className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card p-6 hover:border-cyan-500/40 transition-colors"
+                  >
+                    {inner}
+                    <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-end text-xs">
+                      <span className="inline-flex items-center gap-1 text-foreground font-semibold opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all">
+                        تصفّح
+                        <ArrowLeft className="size-3.5" />
+                      </span>
+                    </div>
+                  </Link>
+                ) : (
+                  <div
+                    key={s.slug}
+                    className="relative overflow-hidden rounded-2xl border border-dashed border-border/70 bg-card/50 p-6"
+                  >
+                    {inner}
+                  </div>
+                );
+              })}
+            </div>
+
+            <p className="mt-8 text-sm text-muted">
+              تخصصك ليس هنا بعد؟{" "}
+              <Link
+                href="/custom-curriculum"
+                className="font-semibold text-cyan-600 hover:underline"
+              >
+                اطلبه ونُعدّه لك مجاناً.
+              </Link>
+            </p>
+          </div>
+        </section>
+
         {/* BOOKS */}
         <section className="py-20 sm:py-28 border-b border-border/60">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="flex items-end justify-between mb-12 gap-4 flex-wrap">
               <div>
                 <div className="text-xs font-mono tracking-widest text-amber-600 mb-3">
-                  المكتبة
+                  إدارة الأعمال · المكتبة
                 </div>
                 <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
                   ثلاثة كتب متاحة،

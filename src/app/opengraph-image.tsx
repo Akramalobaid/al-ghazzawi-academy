@@ -113,7 +113,7 @@ export default async function OgImage() {
             display: "flex",
           }}
         >
-          Arabic MBA learning platform · books · summaries · thousands of questions
+          Arabic university learning platform · books · summaries · thousands of questions
         </div>
       </div>
     ),

@@ -6,7 +6,7 @@ import { BOOKS } from "@/lib/site";
 
 export const metadata = {
   title: "الكتب",
-  description: "تصفّح الكتب الخمسة المتاحة في أكاديمية الغزاوي",
+  description: "تصفّح كتب إدارة الأعمال المتاحة في أكاديمية الغزاوي",
 };
 
 export default function BooksPage() {
@@ -20,7 +20,7 @@ export default function BooksPage() {
             المكتبة
           </div>
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-foreground">
-            خمسة كتب MBA،
+            كتب إدارة الأعمال،
             <br />
             <span className="text-muted">منهج متكامل بالعربية.</span>
           </h1>

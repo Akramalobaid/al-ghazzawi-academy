@@ -53,7 +53,7 @@ export default async function BookPage({ params }: PageProps<"/books/[book]">) {
         <div className="rise-in border-b border-border/60 pb-10">
           <div className="flex items-center gap-3 text-xs font-mono tracking-widest text-amber-600">
             <span className="h-px w-8 bg-amber-500/60" />
-            {bookOrdinalLabel(book)} · MBA
+            {bookOrdinalLabel(book)} · إدارة الأعمال
           </div>
           <h1 className="mt-5 text-4xl sm:text-6xl font-black tracking-tight leading-[1.05] text-foreground">
             {b.title_ar}

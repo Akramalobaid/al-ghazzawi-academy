@@ -5,7 +5,7 @@ import { SITE, whatsappLink } from "@/lib/site";
 
 export const metadata = {
   title: "عن المنصة",
-  description: "تعرّف على أكاديمية الغزاوي - منصة MBA العربية",
+  description: "تعرّف على أكاديمية الغزاوي - المنصة العربية لكل التخصصات الجامعية",
 };
 
 export default function AboutPage() {
@@ -20,15 +20,16 @@ export default function AboutPage() {
         <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-foreground leading-tight">
           منصة بُنيت بشغف
           <br />
-          <span className="text-muted">لطلاب MBA العرب.</span>
+          <span className="text-muted">لكل طالبٍ جامعيٍّ عربي.</span>
         </h1>
 
         <div className="mt-10 prose prose-lg max-w-none text-foreground/90">
           <p className="text-lg leading-relaxed text-muted">
-            أكاديمية الغزاوي هي منصة تعليمية رقمية متخصصة في برامج ماجستير إدارة الأعمال،
+            أكاديمية الغزاوي هي منصة تعليمية رقمية لكل التخصصات الجامعية،
             تجمع بين الكتب الأصلية الكاملة، والملخصات الذكية بمستويات متعددة,
             وآلاف الأسئلة التدريبية، وبطاقات المصطلحات — كل ذلك بلغة عربية واضحة
-            تحترم عقل القارئ ومستواه الأكاديمي.
+            تحترم عقل القارئ ومستواه الأكاديمي. نبدأ بتخصص إدارة الأعمال،
+            ونتوسّع تدريجياً نحو بقية التخصصات.
           </p>
         </div>
 
@@ -52,7 +53,7 @@ export default function AboutPage() {
             {
               icon: Sparkles,
               title: "تحديثات مستمرة",
-              desc: "محتوى جديد يُضاف بشكل دوري حتى اكتمال كل الكتب الخمسة.",
+              desc: "تخصصات وكتب جديدة تُضاف بشكل دوري، بدءاً بإدارة الأعمال.",
             },
           ].map(({ icon: Icon, title, desc }) => (
             <div
@@ -71,7 +72,7 @@ export default function AboutPage() {
         <div className="mt-14 rounded-2xl border border-border/60 bg-gradient-to-br from-navy/[0.02] to-royal-50/30 p-8">
           <h2 className="text-2xl font-bold text-foreground">رؤيتنا</h2>
           <p className="mt-3 text-muted leading-relaxed">
-            أن نُتيح لكل طالب MBA عربي فرصة الدراسة بأدوات احترافية بمستوى أفضل المنصات
+            أن نُتيح لكل طالبٍ جامعيٍّ عربي فرصة الدراسة بأدوات احترافية بمستوى أفضل المنصات
             العالمية، بلغته الأم، وبجودة لا يضطر معها للبحث عن مصادر باللغة الإنجليزية.
           </p>
         </div>

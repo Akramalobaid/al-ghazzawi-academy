@@ -57,7 +57,7 @@ export function Logo({ className }: { className?: string }) {
           أكاديمية الغزاوي
         </span>
         <span className="text-[10px] font-medium text-muted tracking-wider uppercase">
-          MBA Academy
+          Learn in Arabic
         </span>
       </div>
     </div>
