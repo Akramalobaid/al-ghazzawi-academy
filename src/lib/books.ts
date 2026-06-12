@@ -6,6 +6,7 @@ import { hrBook } from "@/content/hr";
 import { marketingBook } from "@/content/marketing";
 import { managementBook } from "@/content/management";
 import { economicsBook } from "@/content/economics";
+import { researchBook } from "@/content/research";
 import type { Book, Chapter, Flashcard, QuizItem } from "@/content/hr/types";
 
 const BOOKS: Record<string, Book> = {
@@ -13,6 +14,7 @@ const BOOKS: Record<string, Book> = {
   marketing: marketingBook,
   management: managementBook,
   economics: economicsBook,
+  research: researchBook,
 };
 
 export function getBook(slug: string): Book | undefined {

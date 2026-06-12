@@ -68,10 +68,10 @@ export const BOOKS = [
   },
   {
     slug: "research",
-    title_ar: "مناهج البحث في الأعمال",
+    title_ar: "طرائق بحوث الأعمال",
     title_en: "Business Research Methods",
-    chapters: 0,
-    status: "coming",
+    chapters: 14,
+    status: "ready",
     color: "from-amber-500 to-yellow-500",
   },
 ] as const;
